@@ -1,6 +1,6 @@
 <p>&nbsp;</p>
 <p align="center">
-<img src="./img/docs_logo.svg" width=500>
+<img src="./img/logo-cosmos.svg" width=500>
 </p>
 
 <div align="center">
