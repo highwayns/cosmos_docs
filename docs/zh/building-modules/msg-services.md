@@ -1,7 +1,3 @@
-<!--
-order: 4
--->
-
 # `Msg` 服务
 
 Protobuf `Msg` 服务处理 [messages](./messages-and-queries.md#messages)。 Protobuf `Msg` 服务特定于定义它们的模块，并且只处理在所述模块中定义的消息。它们在 [`DeliverTx`](../core/baseapp.md#delivertx) 期间从 `BaseApp` 调用。 {概要}

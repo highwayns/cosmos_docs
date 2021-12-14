@@ -1,7 +1,3 @@
-<!--
-order: 7
--->
-
 # 守门员
 
 `Keeper` 是指 Cosmos SDK 抽象，其作用是管理对由各种模块定义的状态子集的访问。 `Keeper`s 是特定于模块的，即模块定义的状态子集只能由该模块中定义的 `keeper` 访问。如果一个模块需要访问另一个模块定义的状态子集，则需要将第二个模块内部 `keeper` 的引用传递给第一个模块。这是在模块管理器实例化期间在`app.go` 中完成的。 {概要}
@@ -39,7 +35,7 @@ type Keeper struct {
 让我们来看看不同的参数:
 
 - 预期的“keeper”是模块外部的“keeper”，该模块的内部“keeper”需要该模块。外部“keeper”作为接口列在内部“keeper”的类型定义中。这些接口本身是在模块文件夹根目录下的“expected_keepers.go”文件中定义的。在这种情况下，接口用于减少依赖项的数量，以及方便模块本身的维护。
-- `storeKey`s 授予对模块管理的 [multistore](../core/store.md) 商店的访问权限。它们应始终不暴露于外部模块。
+- `storeKey`s 授予对模块管理的 [multistore](../core/store.md)存储的访问权限。它们应始终不暴露于外部模块。
 - `cdc` 是 [codec](../core/encoding.md) 用于将结构编组和解组到/从 `[]byte`。 `cdc` 可以是 `codec.BinaryCodec`、`codec.JSONCodec` 或 `codec.Codec` 中的任何一种，具体取决于您的要求。只要它们实现了这些接口，它就可以是 proto 或氨基编解码器。
 
 当然，可以为同一模块定义不同类型的内部 `keeper`(例如只读 `keeper`)。每种类型的 `keeper` 都有自己的构造函数，它是从 [应用程序的构造函数](../basics/app-anatomy.md) 调用的。这是实例化 `keeper` 的地方，开发人员确保将模块 `keeper` 的正确实例传递给需要它们的其他模块。

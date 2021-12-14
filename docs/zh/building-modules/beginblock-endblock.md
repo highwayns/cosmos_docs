@@ -1,7 +1,3 @@
-<!--
-order: 6
--->
-
 # BeginBlocker 和 EndBlocker
 
 `BeginBlocker` 和 `EndBlocker` 是模块开发人员可以在他们的模块中实现的可选方法。当 [`BeginBlock`](../core/baseapp.md#beginblock) 和 [`EndBlock`](../core/baseapp.md #endblock) 从底层共识引擎接收 ABCI 消息。 {概要}

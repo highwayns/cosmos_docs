@@ -1,9 +1,3 @@
-<!--
-order: false
-parent:
-  order: 6
--->
-
 # 迁移
 
 本文档包含将您的应用程序和模块更新到 Cosmos SDK v0.44 的所有迁移指南。

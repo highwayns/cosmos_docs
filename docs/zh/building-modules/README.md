@@ -1,9 +1,3 @@
-<!--
-order: false
-parent:
-  order: 5
--->
-
 # 构建模块
 
 此存储库包含有关开发人员为构建 Cosmos SDK 应用程序模块而需要了解的概念的文档。

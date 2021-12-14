@@ -1,9 +1,3 @@
-<!--
-order: false
-parent:
-  order: 1
--->
-
 # 介绍
 
 本介绍提供了 Cosmos SDK 的快速入门。

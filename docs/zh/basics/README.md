@@ -1,9 +1,3 @@
-<!--
-order: false
-parent:
-  order: 2
--->
-
 # 基本
 
 此存储库包含有关 Cosmos SDK 基本概念的参考文档。

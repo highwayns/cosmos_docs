@@ -1,7 +1,3 @@
-<!--
-order: 5
--->
-
 # 查询服务
 
 Protobuf 查询服务处理 [`queries`](./messages-and-queries.md#queries)。查询服务特定于定义它们的模块，并且只处理在所述模块中定义的“查询”。它们是从`BaseApp` 的[`Query` 方法](../core/baseapp.md#query) 调用的。 {概要}

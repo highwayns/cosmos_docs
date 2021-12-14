@@ -1,7 +1,3 @@
-<!--
-order: 4
--->
-
 # Cosmos SDK 的主要组成部分
 
 Cosmos SDK 是一个框架，可促进在 Tendermint 之上开发安全状态机。 Cosmos SDK 的核心是 Golang 中 [ABCI](./sdk-app-architecture.md#abci) 的样板实现。它带有一个 [`multistore`](../core/store.md#multistore) 来持久化数据和一个 [`router`](../core/baseapp.md#routing) 来处理事务。
