@@ -1,9 +1,9 @@
-# ADR 029：费用补助模块
+# ADR 029:费用补助模块
 
 ## 变更日志
 
-- 2020/08/18：初稿
-- 2021/05/05：删除了基于高度的过期支持和简化的命名。
+- 2020/08/18:初稿
+- 2021/05/05:删除了基于高度的过期支持和简化的命名。
 
 ## 地位
 
@@ -35,7 +35,7 @@
 作为一种解决方案，我们提出了一个模块 `x/feegrant`，它允许一个帐户，即“授予者”授予另一个帐户，即“被授予者”
 在某些明确定义的限额内将授予人的账户余额用于费用的津贴。
 
-费用限额由可扩展的`FeeAllowanceI` 接口定义： 
+费用限额由可扩展的`FeeAllowanceI` 接口定义: 
 
 ```go
 type FeeAllowanceI {
@@ -147,6 +147,6 @@ message Fee {
 
 ## References
 
-- 描述初始工作的博客文章：https://medium.com/regen-network/hacking-the-cosmos-cosmwasm-and-key-management-a08b9f561d1b
-- 初始公开规范：https://gist.github.com/aaronc/b60628017352df5983791cad30babe56
-- 来自 B-harvest 的原始子密钥提案影响了这个设计：https://github.com/cosmos/cosmos-sdk/issues/4480 
+- 描述初始工作的博客文章:https://medium.com/regen-network/hacking-the-cosmos-cosmwasm-and-key-management-a08b9f561d1b
+- 初始公开规范:https://gist.github.com/aaronc/b60628017352df5983791cad30babe56
+- 来自 B-harvest 的原始子密钥提案影响了这个设计:https://github.com/cosmos/cosmos-sdk/issues/4480 

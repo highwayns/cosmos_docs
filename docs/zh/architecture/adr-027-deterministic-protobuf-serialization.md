@@ -1,15 +1,15 @@
-# ADR 027：确定性 Protobuf 序列化
+# ADR 027:确定性 Protobuf 序列化
 
 ## 变更日志
 
-- 2020-08-07：初稿
-- 2020-09-01：进一步明确规则
+- 2020-08-07:初稿
+- 2020-09-01:进一步明确规则
 
 ## 地位
 
 建议的
 
-## 抽象的
+## 摘要
 
 完全确定性结构序列化，适用于多种语言和客户端，
 签名消息时需要。我们需要确保每当我们序列化
@@ -30,7 +30,7 @@ protobuf 文档的一个子集，涵盖了这个用例，但可以在
 [ADR-020](./adr-020-protobuf-transaction-encoding.md) 不传输
 连载。
 
-目前，对于块签名，我们正在使用一种解决方法：我们创建一个新的 [TxRaw](https://github.com/cosmos/cosmos-sdk/blob/9e85e81e0e8140067dd893421290c191529c148c/proto/cosmos/tx/v1proto#L30x )
+目前，对于块签名，我们正在使用一种解决方法:我们创建一个新的 [TxRaw](https://github.com/cosmos/cosmos-sdk/blob/9e85e81e0e8140067dd893421290c191529c148c/proto/cosmos/tx/v1proto#L30x )
 实例(定义在 [adr-020-protobuf-transaction-encoding](https://github.com/cosmos/cosmos-sdk/blob/master/docs/architecture/adr-020-protobuf-transaction-encoding.md #交易))
 通过转换所有 [Tx](https://github.com/cosmos/cosmos-sdk/blob/9e85e81e0e8140067dd893421290c191529c148c/proto/cosmos/tx/v1beta1/tx.proto#L13)
 字段到客户端的字节。这增加了一个额外的手册
@@ -75,7 +75,7 @@ varints 是 `uint70`(70 位无符号整数)的表示。什么时候
 
 序列化基于
 [protobuf3 编码](https://developers.google.com/protocol-buffers/docs/encoding)
-增加了以下内容：
+增加了以下内容:
 
 1.字段只能按升序序列化一次
 2. 不得添加额外字段或任何额外数据
@@ -83,7 +83,7 @@ varints 是 `uint70`(70 位无符号整数)的表示。什么时候
    必须省略
 4. 标量数值类型的`repeated`字段必须使用
    [打包编码](https://developers.google.com/protocol-buffers/docs/encoding#packed)
-5. Varint 编码不能超过需要：
+5. Varint 编码不能超过需要:
     * 没有尾随零字节(在小端，即大中没有前导零
       字节序)。根据上面的规则 3，必须省略默认值“0”，因此
       此规则不适用于此类情况。
@@ -116,7 +116,7 @@ varints 是 `uint70`(70 位无符号整数)的表示。什么时候
 有一个数值为 0 的第一个元素，这是默认的<sup>6</sup>。和
 消息字段默认为 unset<sup>7</sup>。
 
-省略默认值允许一定程度的向前兼容性：
+省略默认值允许一定程度的向前兼容性:
 protobuf 模式的较新版本产生与用户相同的序列化
 只要不使用新添加的字段(即设置为它们的
 默认值)。
@@ -124,7 +124,7 @@ protobuf 模式的较新版本产生与用户相同的序列化
 ### 执行
 
 共有三种主要的实施策略，从低到高排序
-大多数定制开发：
+大多数定制开发:
 
 - **默认使用遵循上述规则的 protobuf 序列化器。** 例如
   [gogoproto](https://pkg.go.dev/github.com/gogo/protobuf/gogoproto) 已知
@@ -134,7 +134,7 @@ protobuf 模式的较新版本产生与用户相同的序列化
 - **在编码之前对默认值进行标准化。** 如果您的序列化程序遵循
   规则 1. 和 2. 并允许您显式取消序列化字段，
   您可以将默认值标准化为未设置。这可以在使用时完成
-  [protobuf.js](https://www.npmjs.com/package/protobufjs)： 
+  [protobuf.js](https://www.npmjs.com/package/protobufjs): 
 
   ```js
   const bytes = SignDoc.encode({
@@ -148,7 +148,7 @@ protobuf 模式的较新版本产生与用户相同的序列化
 
 - **针对您需要的类型使用手写序列化程序。** 如果以上都不是
    方法对您有用，您可以自己编写序列化程序。 对于 SignDoc 这个
-   在 Go 中看起来像这样，构建在现有的 protobuf 实用程序上：
+   在 Go 中看起来像这样，构建在现有的 protobuf 实用程序上:
 
   ```go
   if !signDoc.body_bytes.empty() {
@@ -277,7 +277,7 @@ $ echo 0a1b54686520776f726c64206e65656473206368616e676520f09f8cb318e8bebec8bc2e2
 ### Usage in Cosmos SDK
 
 由于上述原因(“否定”部分)，我们更愿意保留变通方法
-用于共享数据结构。 示例：前面提到的 `TxRaw` 使用原始字节
+用于共享数据结构。 示例:前面提到的 `TxRaw` 使用原始字节
 作为解决方法。 这允许他们使用任何有效的 Protobuf 库，而无需
 需要实现符合此标准的自定义序列化程序(以及相关的错误风险)。 
 
@@ -292,7 +292,7 @@ $ echo 0a1b54686520776f726c64206e65656473206368616e676520f09f8cb318e8bebec8bc2e2
 - <sup>2</sup> https://developers.google.com/protocol-buffers/docs/encoding#signed_integers
 - <sup>3</sup> _注意对于标量消息字段，一旦消息被解析
   没有办法判断一个字段是否显式设置为默认值
-  值(例如布尔值是否设置为 false)或根本不设置：
+  值(例如布尔值是否设置为 false)或根本不设置:
   在定义消息类型时，您应该牢记这一点。例如，
   没有一个布尔值在设置为 false 时开启某些行为，如果你
   不希望这种行为也发生在默认情况下。_来自

@@ -1,17 +1,17 @@
-# ADR 43：NFT 模块
+# ADR 43:NFT 模块
 
 ## 变更日志
 
-- 2021-05-01：初稿
-- 2021-07-02：审核更新
+- 2021-05-01:初稿
+- 2021-07-02:审核更新
 
 ## 地位
 
 建议的
 
-## 抽象的
+## 摘要
 
-该 ADR 定义了 `x/nft` 模块，它是 NFT 的通用实现，与 ERC721 大致“兼容”。 **使用 `x/nft` 模块的应用程序必须实现以下功能**：
+该 ADR 定义了 `x/nft` 模块，它是 NFT 的通用实现，与 ERC721 大致“兼容”。 **使用 `x/nft` 模块的应用程序必须实现以下功能**:
 
 - `MsgNewClass` - 接收用户创建类的请求，调用`x/nft`模块的`NewClass`。
 - `MsgUpdateClass` - 接收用户更新类的请求，并调用`x/nft`模块的`UpdateClass`。
@@ -23,7 +23,7 @@
 
 NFT 不仅仅是加密艺术，这对于为 Cosmos 生态系统积累价值非常有帮助。因此，Cosmos Hub 应实现 NFT 功能并启用统一机制来存储和发送 NFT 的所有权代表，如 https://github.com/cosmos/cosmos-sdk/discussions/9065 中所述。
 
-如 [#9065](https://github.com/cosmos/cosmos-sdk/discussions/9065) 中所述，可以考虑几种潜在的解决方案：
+如 [#9065](https://github.com/cosmos/cosmos-sdk/discussions/9065) 中所述，可以考虑几种潜在的解决方案:
 
 - irismod/nft 和模块/孵化器/nft
 - CW721
@@ -39,7 +39,7 @@ NFT 不仅仅是加密艺术，这对于为 Cosmos 生态系统积累价值非�
 
 ## 决定
 
-我们创建了一个 `x/nft` 模块，它包含以下功能：
+我们创建了一个 `x/nft` 模块，它包含以下功能:
 
 - 存储 NFT 并跟踪其所有权。
 - 公开`Keeper` 接口，用于组合模块以传输、铸造和燃烧 NFT。
@@ -47,13 +47,13 @@ NFT 不仅仅是加密艺术，这对于为 Cosmos 生态系统积累价值非�
 - 查询 NFT 及其供应信息。
 
 提议的模块是 NFT 应用程序逻辑的基础模块。它的目标是为存储、基本传输功能和 IBC 提供一个公共层。该模块不应单独使用。
-相反，应用程序应该创建一个专门的模块来处理应用程序特定的逻辑(例如：NFT ID 构建、版税)、用户级别的铸造和刻录。此外，应用程序专用模块应处理辅助数据以支持应用程序逻辑(例如索引、ORM、业务数据)。 
+相反，应用程序应该创建一个专门的模块来处理应用程序特定的逻辑(例如:NFT ID 构建、版税)、用户级别的铸造和刻录。此外，应用程序专用模块应处理辅助数据以支持应用程序逻辑(例如索引、ORM、业务数据)。 
 
 IBC 上携带的所有数据必须是下面描述的“NFT”或“Class”类型的一部分。 应用程序特定的 NFT 数据应在“NFT.data”中编码以实现跨链完整性。 与 NFT 相关的其他对完整性不重要的对象可以是应用程序特定模块的一部分。
 
 ### 类型
 
-我们建议两种主要类型：
+我们建议两种主要类型:
 + `Class` -- 描述 NFT 类。 我们可以将其视为智能合约地址。
 + `NFT` -- 代表独特的、不可替代的资产的对象。 每个 NFT 都与一个类相关联。
 
@@ -102,7 +102,7 @@ message NFT {
   {class_id}/{id} --> NFT (bytes)
   ```
 
-- `uri` 是链下存储的 NFT 元数据的 URI。 应指向包含有关此 NFT 的元数据的 JSON 文件(参考：[ERC721 标准和 OpenSea 扩展](https://docs.opensea.io/docs/metadata-standards))； _必需的_
+- `uri` 是链下存储的 NFT 元数据的 URI。 应指向包含有关此 NFT 的元数据的 JSON 文件(参考:[ERC721 标准和 OpenSea 扩展](https://docs.opensea.io/docs/metadata-standards))； _必需的_
 - `uri_hash` 是 uri 指向的文档的哈希值； _选修的_
 - `data` 是 NFT 的应用程序特定数据。 可以通过组合模块使用来指定 NFT 的附加属性； _选修的_
 
@@ -153,7 +153,7 @@ message MsgSendResponse {}
 
 `MsgSend` 可用于将 NFT 的所有权转移到另一个地址。
 
-服务器的实现大纲如下： 
+服务器的实现大纲如下: 
 
 ```go
 type msgServer struct{
@@ -171,7 +171,7 @@ func (m msgServer) Send(ctx context.Context, msg *types.MsgSend) (*types.MsgSend
 }
 ```
 
-`x/nft` 模块的查询服务方法有： 
+`x/nft` 模块的查询服务方法有: 
 
 ```proto
 service Query {
@@ -304,10 +304,10 @@ message QueryClassesResponse {
 
 ### Interoperability
 
-互操作性就是在模块和链之间重用资产。前一种是通过 ADR-33 实现的：Protobuf 客户端-服务器通信。在撰写本文时，ADR-33 尚未最终确定。后者是由 IBC 实现的。在这里，我们将重点介绍 IBC 方面。
+互操作性就是在模块和链之间重用资产。前一种是通过 ADR-33 实现的:Protobuf 客户端-服务器通信。在撰写本文时，ADR-33 尚未最终确定。后者是由 IBC 实现的。在这里，我们将重点介绍 IBC 方面。
 IBC 是按模块实现的。在这里，我们一致认为 NFT 将在 x/nft 中记录和管理。这需要创建一个新的 IBC 标准并实施它。
 
-对于 IBC 互操作性，NFT 自定义模块必须使用 IBC 客户端理解的 NFT 对象类型。因此，对于 x/nft 互操作性，自定义 NFT 实现(例如：x/cryptokitty)应使用规范的 x/nft 模块并将所有 NFT 平衡保持功能代理到 x/nft，否则使用理解的 NFT 对象类型重新实现所有功能由 IBC 客户提供。换句话说：x/nft 成为所有 Cosmos NFT 的标准 NFT 注册表(例如：x/cryptokitty 将在 x/nft 中注册一个 kitty NFT 并使用 x/nft 进行簿记)。这是在使用 x/bank 作为一般资产平衡簿的背景下 [讨论](https://github.com/cosmos/cosmos-sdk/discussions/9065#discussioncomment-873206)。不使用 x/nft 将需要为 IBC 实现另一个模块。 
+对于 IBC 互操作性，NFT 自定义模块必须使用 IBC 客户端理解的 NFT 对象类型。因此，对于 x/nft 互操作性，自定义 NFT 实现(例如:x/cryptokitty)应使用规范的 x/nft 模块并将所有 NFT 平衡保持功能代理到 x/nft，否则使用理解的 NFT 对象类型重新实现所有功能由 IBC 客户提供。换句话说:x/nft 成为所有 Cosmos NFT 的标准 NFT 注册表(例如:x/cryptokitty 将在 x/nft 中注册一个 kitty NFT 并使用 x/nft 进行簿记)。这是在使用 x/bank 作为一般资产平衡簿的背景下 [讨论](https://github.com/cosmos/cosmos-sdk/discussions/9065#discussioncomment-873206)。不使用 x/nft 将需要为 IBC 实现另一个模块。 
 
 ## Consequences
 
@@ -317,7 +317,7 @@ No backward incompatibilities.
 
 ### Forward Compatibility
 
-该规范符合 NFT 标识符的 ERC-721 智能合约规范。 请注意，ERC-721 定义了基于(合约地址，uint256 tokenId)的唯一性，我们隐含地遵守这一点，因为当前单个模块旨在跟踪 NFT 标识符。 注意：使用(可变)数据字段来确定唯一性是不安全的。 
+该规范符合 NFT 标识符的 ERC-721 智能合约规范。 请注意，ERC-721 定义了基于(合约地址，uint256 tokenId)的唯一性，我们隐含地遵守这一点，因为当前单个模块旨在跟踪 NFT 标识符。 注意:使用(可变)数据字段来确定唯一性是不安全的。 
 
 ### Positive
 
@@ -334,16 +334,16 @@ No backward incompatibilities.
 - 其他功能需要更多模块。 例如，NFT 交易功能需要一个托管模块，定义 NFT 属性需要一个收藏模块。 
 ## Further Discussions
 
-对于 Hub 上的其他类型的应用，未来可以开发更多特定于应用的模块：
+对于 Hub 上的其他类型的应用，未来可以开发更多特定于应用的模块:
 
-- `x/nft/custody`：托管 NFT 以支持交易功能。
-- `x/nft/marketplace`：使用 sdk.Coins 买卖 NFT。
-- `x/fractional`：为多个利益相关者分割资产(NFT 或其他资产)所有权的模块。 `x/group` 应该适用于大多数情况。
+- `x/nft/custody`:托管 NFT 以支持交易功能。
+- `x/nft/marketplace`:使用 sdk.Coins 买卖 NFT。
+- `x/fractional`:为多个利益相关者分割资产(NFT 或其他资产)所有权的模块。 `x/group` 应该适用于大多数情况。
 
 Cosmos 生态系统中的其他网络可以为特定的 NFT 应用程序和用例设计和实现自己的 NFT 模块。
 
 ## 参考
 
-- 初步讨论：https://github.com/cosmos/cosmos-sdk/discussions/9065
-- x/nft：初始化模块：https://github.com/cosmos/cosmos-sdk/pull/9174
+- 初步讨论:https://github.com/cosmos/cosmos-sdk/discussions/9065
+- x/nft:初始化模块:https://github.com/cosmos/cosmos-sdk/pull/9174
 - [ADR 033](https://github.com/cosmos/cosmos-sdk/blob/master/docs/architecture/adr-033-protobuf-inter-module-comm.md) 

@@ -243,6 +243,6 @@ func NewApp(...args) *App {
 不同的链。 如果您想更广泛地了解更改，请查看 Cosmos SDK 的
 [`SimApp`](https://github.com/cosmos/ibc-go/blob/main/testing/simapp/app.go)。
 
-## 下一个{hide}
+## 下一个 {hide}
 
 了解如何为您的应用程序创建 [自定义 IBC 模块](./custom.md) {hide} 

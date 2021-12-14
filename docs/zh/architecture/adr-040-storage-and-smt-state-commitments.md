@@ -1,14 +1,14 @@
-# ADR 040：存储和 SMT 状态承诺
+# ADR 040:存储和 SMT 状态承诺
 
 ## 变更日志
 
-- 2020-01-15：草案
+- 2020-01-15:草案
 
 ## 地位
 
 草案未实施
 
-## 抽象的
+## 摘要
 
 稀疏默克尔树 ([SMT](https://osf.io/8mcnh/)) 是具有各种存储和性能优化的默克尔树的一个版本。此 ADR 定义了状态承诺与数据存储的分离以及 Cosmos SDK 从 IAVL 到 SMT 的转换。
 
@@ -17,7 +17,7 @@
 目前，Cosmos SDK 将 IAVL 用于状态 [承诺](https://cryptography.fandom.com/wiki/Commitment_scheme) 和数据存储。
 
 IAVL 已有效地成为 Cosmos 生态系统中的一个孤立项目，并且已被证明是一种低效的状态承诺数据结构。
-在当前的设计中，IAVL 用于数据存储和状态承诺的默克尔树。 IAVL 旨在成为独立的默克尔化键/值数据库，但它使用 KV 数据库引擎来存储所有树节点。因此，每个节点都存储在 KV DB 中的单独记录中。这会导致许多低效率和问题：
+在当前的设计中，IAVL 用于数据存储和状态承诺的默克尔树。 IAVL 旨在成为独立的默克尔化键/值数据库，但它使用 KV 数据库引擎来存储所有树节点。因此，每个节点都存储在 KV DB 中的单独记录中。这会导致许多低效率和问题:
 
 + 每个对象查询都需要从根开始遍历树。对同一对象的后续查询缓存在 Cosmos SDK 级别。
 + 每条边遍历都需要一个 DB 查询。
@@ -40,19 +40,19 @@ IAVL 已有效地成为 Cosmos 生态系统中的一个孤立项目，并且已�
 
 `SC` (SMT) 用于提交数据和计算 Merkle 证明。 `SS` 用于直接访问数据。为了避免冲突，`SS` 和 `SC` 都将使用单独的存储命名空间(它们可以在下面使用相同的数据库)。 `SS` 将直接存储每条记录(将 `(key, value)` 映射为 `key → value`)。
 
-SMT 是一种默克尔树结构：我们不直接存储密钥。对于每个`(key, value)`对，`hash(key)`用作叶子路径(我们散列一个键以在树中均匀分布叶子)和`hash(value)`作为叶子内容。 [下面](#smt-for-state-commitment) 更深入地指定了树结构。
+SMT 是一种默克尔树结构:我们不直接存储密钥。对于每个`(key, value)`对，`hash(key)`用作叶子路径(我们散列一个键以在树中均匀分布叶子)和`hash(value)`作为叶子内容。 [下面](#smt-for-state-commitment) 更深入地指定了树结构。
 
-对于数据访问，我们建议使用 2 个额外的 KV 存储桶(作为键值对的命名空间实现，有时称为 [列族](https://github.com/facebook/rocksdb/wiki/Terminology))：
+对于数据访问，我们建议使用 2 个额外的 KV 存储桶(作为键值对的命名空间实现，有时称为 [列族](https://github.com/facebook/rocksdb/wiki/Terminology)):
 
-1. B1：`key → value`：状态机使用的主体对象存储，在Cosmos SDK`KVStore`接口后面：提供key直接访问，允许前缀迭代(KV DB后端必须支持)。
-2. B2：`hash(key) → key`：从SMT路径中获取密钥的反向索引。在内部，SMT 会将 `(key, value)` 存储为 `prefix ||哈希(键) ||哈希(值)`。所以，我们可以通过组合`hash(key) → B2 → B1`来获得一个对象值。
+1. B1:`key → value`:状态机使用的主体对象存储，在Cosmos SDK`KVStore`接口后面:提供key直接访问，允许前缀迭代(KV DB后端必须支持)。
+2. B2:`hash(key) → key`:从SMT路径中获取密钥的反向索引。在内部，SMT 会将 `(key, value)` 存储为 `prefix ||哈希(键) ||哈希(值)`。所以，我们可以通过组合`hash(key) → B2 → B1`来获得一个对象值。
 3. 如果需要，我们可以使用更多的桶来优化应用程序的使用。
 
-我们建议为“SS”和“SC”使用 KV 数据库。存储接口将允许对“SS”和“SC”以及两个单独的数据库使用相同的物理数据库后端。后一种选项允许将 `SS` 和 `SC` 分离到不同的硬件单元中，为更复杂的设置场景提供支持并提高整体性能：可以使用不同的后端(例如 RocksDB 和 Badger)以及独立调整底层数据库配置。 
+我们建议为“SS”和“SC”使用 KV 数据库。存储接口将允许对“SS”和“SC”以及两个单独的数据库使用相同的物理数据库后端。后一种选项允许将 `SS` 和 `SC` 分离到不同的硬件单元中，为更复杂的设置场景提供支持并提高整体性能:可以使用不同的后端(例如 RocksDB 和 Badger)以及独立调整底层数据库配置。 
 
 ### Requirements
 
-状态存储要求：
+状态存储要求:
 
 + 范围查询
 + 快速(键、值)访问
@@ -60,7 +60,7 @@ SMT 是一种默克尔树结构：我们不直接存储密钥。对于每个`(ke
 + 历史版本
 + 修剪(垃圾收集)
 
-国家承诺要求：
+国家承诺要求:
 
 + 快速更新
 + 树路径应该很短
@@ -71,10 +71,10 @@ SMT 是一种默克尔树结构：我们不直接存储密钥。对于每个`(ke
 
 稀疏 Merkle 树基于难以处理的大小的完整 Merkle 树的想法。这里的假设是，由于树的大小是难以处理的，因此相对于树的大小，将只有少数具有有效数据块的叶节点，从而呈现稀疏树。
 
-完整规范可以在 [Celestia](https://github.com/celestiaorg/celestia-specs/blob/ec98170398dfc6394423ee79b00b71038879e211/src/specs/data_structures.md#sparse-merkle-tree) 找到。总之：
+完整规范可以在 [Celestia](https://github.com/celestiaorg/celestia-specs/blob/ec98170398dfc6394423ee79b00b71038879e211/src/specs/data_structures.md#sparse-merkle-tree) 找到。总之:
 
 * SMT 由二叉 Merkle 树组成，以与 [证书透明度 (RFC-6962)](https://tools.ietf.org/html/rfc6962) 中所述相同的方式构建，但用作散列函数 SHA -2-256，如 [FIPS 180-4](https://doi.org/10.6028/NIST.FIPS.180-4) 中所定义。
-* 叶节点和内部节点的散列方式不同：叶节点前面加上一字节的“0x00”，而内部节点前面加上“0x01”。
+* 叶节点和内部节点的散列方式不同:叶节点前面加上一字节的“0x00”，而内部节点前面加上“0x01”。
 * 给空叶节点赋予默认值。
 * 虽然上述规则足以预先计算作为空子树根的中间节点的值，但进一步简化是将此默认值扩展到作为空子树根的所有节点。 32 字节的零用作默认值。此规则优先于上述规则。
 * 作为包含一个非空叶子的子树根的内部节点被该叶子的叶子节点替换。
@@ -89,10 +89,10 @@ SMT 是一种默克尔树结构：我们不直接存储密钥。对于每个`(ke
 Stargate 的核心功能之一是`/snapshot` 包中提供的_snapshot sync_。它提供了一种无需信任地同步区块链而无需重复所有交易的方法。此功能在 Cosmos SDK 中实现，需要存储支持。目前 IAVL 是唯一受支持的后端。它的工作原理是将某个版本的“SS”的快照与标头链一起流式传输到客户端。
 
 将在每个“EndBlocker”中创建一个新的数据库快照，并由块高度标识。 `root` 存储跟踪可用快照以提供特定版本的 `SS`。 `root` 存储实现了下面描述的 `RootStore` 接口。本质上，`RootStore` 封装了一个`Committer` 接口。 `Committer` 有一个 `Commit`、`SetPruning`、`GetPruning` 函数，用于创建和删除快照。 `rootStore.Commit` 函数创建一个新快照并在每次调用时增加版本，并检查是否需要删除旧版本。我们需要更新 SMT 接口以实现 `Committer` 接口。
-注意：每个块必须只调用一次 `Commit`。否则，我们可能会面临版本号和区块高度不同步的风险。
-注意：对于 Cosmos SDK 存储，我们可以考虑将该接口拆分为 `Committer` 和 `PruningCommitter` - 只有 multiroot 应该实现 `PruningCommitter`(缓存和前缀存储不需要修剪)。 
+注意:每个块必须只调用一次 `Commit`。否则，我们可能会面临版本号和区块高度不同步的风险。
+注意:对于 Cosmos SDK 存储，我们可以考虑将该接口拆分为 `Committer` 和 `PruningCommitter` - 只有 multiroot 应该实现 `PruningCommitter`(缓存和前缀存储不需要修剪)。 
 
-`abci.RequestQuery` 和状态同步快照的历史版本数是节点配置的一部分，而不是链配置(区块链共识隐含的配置)。配置应该允许指定过去块的数量和过去块的数量以某个数字为模(例如：过去的 100 个块和过去 2000 个块的每 100 个块的一个快照)。存档节点可以保留所有过去的版本。
+`abci.RequestQuery` 和状态同步快照的历史版本数是节点配置的一部分，而不是链配置(区块链共识隐含的配置)。配置应该允许指定过去块的数量和过去块的数量以某个数字为模(例如:过去的 100 个块和过去 2000 个块的每 100 个块的一个快照)。存档节点可以保留所有过去的版本。
 
 修剪旧快照是由数据库有效完成的。每当我们更新 `SC` 中的记录时，SMT 不会更新节点——而是在更新路径上创建新节点，而不删除旧节点。由于我们正在对每个块进行快照，因此我们需要更改该机制以立即从数据库中删除孤立节点。这是一项安全操作 - 快照将跟踪记录并在访问过去版本时使其可用。
 
@@ -113,7 +113,7 @@ Stargate 的核心功能之一是`/snapshot` 包中提供的_snapshot sync_。�
 
 ### 回滚
 
-如果事务失败，我们需要能够处理事务和回滚状态更新。这可以通过以下方式完成：在事务处理期间，我们将所有状态更改请求(写入)保存在“CacheWrapper”抽象中(就像今天所做的那样)。一旦我们完成块处理，在“Endblocker”中，我们提交一个根存储 - 那时，所有更改都会写入 SMT 和“SS”，并创建快照。
+如果事务失败，我们需要能够处理事务和回滚状态更新。这可以通过以下方式完成:在事务处理期间，我们将所有状态更改请求(写入)保存在“CacheWrapper”抽象中(就像今天所做的那样)。一旦我们完成块处理，在“Endblocker”中，我们提交一个根存储 - 那时，所有更改都会写入 SMT 和“SS”，并创建快照。
 
 ### 提交一个对象而不保存它
 
@@ -121,9 +121,9 @@ Stargate 的核心功能之一是`/snapshot` 包中提供的_snapshot sync_。�
 
 ### 重构 MultiStore
 
-Stargate `/store` 实现 (store/v1) 在 SDK存储构建中添加了一个额外的层 - `MultiStore` 结构。 multistore 的存在是为了支持 Cosmos SDK 的模块化——每个模块都使用自己的 IAVL 实例，但在当前的实现中，所有实例共享同一个数据库。然而，后者表明该实现没有提供真正的模块化。相反，它会导致与竞争条件和原子数据库提交相关的问题(请参阅：[\#6370](https://github.com/cosmos/cosmos-sdk/issues/6370) 和 [讨论](https://github.com)。 com/cosmos/cosmos-sdk/discussions/8297#discussioncomment-757043))。
+Stargate `/store` 实现 (store/v1) 在 SDK存储构建中添加了一个额外的层 - `MultiStore` 结构。 multistore 的存在是为了支持 Cosmos SDK 的模块化——每个模块都使用自己的 IAVL 实例，但在当前的实现中，所有实例共享同一个数据库。然而，后者表明该实现没有提供真正的模块化。相反，它会导致与竞争条件和原子数据库提交相关的问题(请参阅:[\#6370](https://github.com/cosmos/cosmos-sdk/issues/6370) 和 [讨论](https://github.com)。 com/cosmos/cosmos-sdk/discussions/8297#discussioncomment-757043))。
 
-我们建议减少 SDK 中的多商店概念，并在“RootStore”对象中使用“SC”和“SS”的单个实例。为了避免混淆，我们应该将 `MultiStore` 接口重命名为 `RootStore`。 `RootStore` 将具有以下界面；为简洁起见，省略了配置跟踪和侦听器的方法。 
+我们建议减少 SDK 中的多存储概念，并在“RootStore”对象中使用“SC”和“SS”的单个实例。为了避免混淆，我们应该将 `MultiStore` 接口重命名为 `RootStore`。 `RootStore` 将具有以下界面；为简洁起见，省略了配置跟踪和侦听器的方法。 
 
 ```go
 // Used where read-only access to versions is needed.
@@ -167,7 +167,7 @@ type RootStoreConfig struct {
 
 与“MultiStore”相反，“RootStore”不允许动态挂载子存储或为单个子存储提供任意的后备数据库。
 
-注意：模块将能够使用特殊的承诺和他们自己的数据库。例如：一个将 ZK 证明用于状态的模块可以在 `RootStore`(通常作为单个记录)中存储和提交这个证明，并私下或使用 `SC` 低级接口管理专门的存储。
+注意:模块将能够使用特殊的承诺和他们自己的数据库。例如:一个将 ZK 证明用于状态的模块可以在 `RootStore`(通常作为单个记录)中存储和提交这个证明，并私下或使用 `SC` 低级接口管理专门的存储。
 
 #### 兼容性支持
 
@@ -182,15 +182,15 @@ type RootStoreConfig struct {
 
 这与“RootStore”不兼容，后者将所有记录存储在单个 Merkle 树结构中，并且不会为存储键和记录键生成单独的证明。理想情况下，可以省略证明的存储密钥组件，并更新为使用“无操作”规范，因此只使用记录密钥。但是，由于 IBC 验证码对 `"ibc"` 前缀进行硬编码，并将其作为证明路径的一个单独元素应用于 SDK 证明，所以如果不进行重大更改，这是不可能的。打破这种行为将严重影响已经广泛采用 IBC 模块的 Cosmos 生态系统。跨链请求更新 IBC 模块是一项耗时的工作，而且不容易实现。
 
-作为一种解决方法，“RootStore”必须使用两个单独的 SMT(它们可以使用相同的底层数据库)：一个用于 IBC 状态，另一个用于其他所有内容。引用这些 SMT 的简单 Merkle 映射将充当 Merkle 树以创建最终的 App 哈希。 Merkle 映射不存储在 DB 中——它是在运行时构建的。 IBC 子存储密钥必须是“ibc”。
+作为一种解决方法，“RootStore”必须使用两个单独的 SMT(它们可以使用相同的底层数据库):一个用于 IBC 状态，另一个用于其他所有内容。引用这些 SMT 的简单 Merkle 映射将充当 Merkle 树以创建最终的 App 哈希。 Merkle 映射不存储在 DB 中——它是在运行时构建的。 IBC 子存储密钥必须是“ibc”。
 
-变通方法仍然可以保证原子同步：[提议的数据库后端](#evaluated-kv-databases) 支持原子事务和高效回滚，这将在提交阶段使用。
+变通方法仍然可以保证原子同步:[提议的数据库后端](#evaluated-kv-databases) 支持原子事务和高效回滚，这将在提交阶段使用。
 
 在 IBC 模块完全升级以支持单元素承诺证明之前，可以使用所提出的解决方法。
 
-### 优化：压缩模块键前缀
+### 优化:压缩模块键前缀
 
-我们考虑通过创建从模块键到整数的映射来压缩前缀键，并使用 varint 编码序列化整数。 Varint 编码确保不同的值没有共同的字节前缀。对于 Merkle 证明，我们不能使用前缀压缩 - 所以它应该只适用于 `SS` 键。此外，前缀压缩应该只应用于模块命名空间。更确切地说：
+我们考虑通过创建从模块键到整数的映射来压缩前缀键，并使用 varint 编码序列化整数。 Varint 编码确保不同的值没有共同的字节前缀。对于 Merkle 证明，我们不能使用前缀压缩 - 所以它应该只适用于 `SS` 键。此外，前缀压缩应该只应用于模块命名空间。更确切地说:
 
 + 每个模块都有自己的命名空间；
 + 当访问模块命名空间时，我们创建一个带有嵌入前缀的 KVStore；
@@ -198,12 +198,12 @@ type RootStoreConfig struct {
 
 我们需要确保代码不会改变。我们可以在一个特殊的键下修复一个静态变量(由应用程序提供)或 SS 状态中的映射。
 
-TODO：需要决定密钥压缩。 
-## 优化：SS 密钥压缩
+TODO:需要决定密钥压缩。 
+## 优化:SS 密钥压缩
 
 某些对象可能会使用 key 保存，其中包含 Protobuf 消息类型。 这样的键很长。 如果我们可以在 varint 中映射 Protobuf 消息类型，我们可以节省大量空间。
 
-TODO：完成此操作或移至另一个 ADR。 
+TODO:完成此操作或移至另一个 ADR。 
 
 ## Consequences
 
@@ -217,7 +217,7 @@ TODO：完成此操作或移至另一个 ADR。
 
 + 将状态与状态承诺解耦为进一步优化和更好的存储模式引入了更好的工程机会。
 + 性能改进。
-+ 加入基于 SMT 的阵营，该阵营比 IAVL 具有更广泛且经过验证的采用。 决定采用 SMT 的示例项目：Ethereum2、Diem(Libra)、Trillan、Tezos、Celestia。
++ 加入基于 SMT 的阵营，该阵营比 IAVL 具有更广泛且经过验证的采用。 决定采用 SMT 的示例项目:Ethereum2、Diem(Libra)、Trillan、Tezos、Celestia。
 + Multistore 移除修复了当前 MultiStore 设计的一个长期问题。
 + 简化默克尔证明——除 IBC 外，所有模块都只有一次默克尔证明。 
 
@@ -241,13 +241,13 @@ TODO：完成此操作或移至另一个 ADR。
 
 ### 评估的 KV 数据库
 
-我们验证了用于评估快照支持的现有数据库 KV 数据库。以下数据库提供了高效的快照机制：Badger、RocksDB、[Pebble](https://github.com/cockroachdb/pebble)。不提供此类支持或未做好生产准备的数据库：boltdb、leveldb、goleveldb、membdb、lmdb。
+我们验证了用于评估快照支持的现有数据库 KV 数据库。以下数据库提供了高效的快照机制:Badger、RocksDB、[Pebble](https://github.com/cockroachdb/pebble)。不提供此类支持或未做好生产准备的数据库:boltdb、leveldb、goleveldb、membdb、lmdb。
 
 ### 关系型数据库
 
 使用 RDBMS 而不是简单的 KV 存储状态。使用 RDBMS 将需要 Cosmos SDK API 重大更改(`KVStore` 接口)，并将提供更好的数据提取和索引解决方案。不是将对象保存为单个字节块，我们可以将其保存为状态存储层中的表中的记录，并作为上面概述的 SMT 中的“hash(key, protobuf(object))”。为了验证在 RDBMS 中注册的对象与提交给 SMT 的对象相同，需要从 RDBMS 加载它，使用 protobuf 编组，散列并进行 SMT 搜索。
 
-### 连锁店
+### 连锁存储
 
 我们正在讨论模块可以使用支持数据库的用例，该数据库不会自动提交。模块将负责拥有一个健全的存储模型，并且可以选择使用 __Committing to an object without save it_ 部分中讨论的功能。
 

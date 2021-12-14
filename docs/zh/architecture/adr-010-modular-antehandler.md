@@ -1,9 +1,9 @@
-# ADR 010：模块化 AnteHandler
+# ADR 010:模块化 AnteHandler
 
 ## 变更日志
 
-- 2019 年 8 月 31 日：初稿
-- 2021 年 9 月 14 日：被 ADR-045 取代
+- 2019 年 8 月 31 日:初稿
+- 2021 年 9 月 14 日:被 ADR-045 取代
 
 ## 地位
 
@@ -21,19 +21,19 @@
 
 一种方法是使用 [ModuleManager](https://godoc.org/github.com/cosmos/cosmos-sdk/types/module) 并让每个模块实现自己的 antehandler，如果它需要自定义 antehandler 逻辑。然后 ModuleManager 可以按照与 BeginBlockers 和 EndBlockers 的顺序相同的方式在 AnteHandler 顺序中传递。 ModuleManager 返回一个 AnteHandler 函数，该函数将接收一个 tx 并以指定的顺序运行每个模块的 `AnteHandle`。模块管理器的 AnteHandler 被设置为 baseapp 的 AnteHandler。
 
-优点：
+优点:
 
 1. 实现简单
 2.利用现有的ModuleManager架构
 
-缺点：
+缺点:
 
 1. 改进了粒度，但仍然无法获得比每个模块更精细的粒度。例如如果 auth 的 `AnteHandle` 函数负责验证备忘录和签名，则用户不能在保留 auth 的其余 `AnteHandle` 功能的同时交换签名检查功能。
 2. 模块AnteHandler 一个接一个运行。一个 AnteHandler 无法包装或“装饰”另一个。
 
 ### 装饰模式
 
-[weave 项目](https://github.com/iov-one/weave) 通过使用装饰器模式实现了 AnteHandler 模块化。界面设计如下： 
+[weave 项目](https://github.com/iov-one/weave) 通过使用装饰器模式实现了 AnteHandler 模块化。界面设计如下: 
 
 ```go
 // Decorator wraps a Handler to provide common functionality
@@ -46,7 +46,7 @@ type Decorator interface {
 
 每个装饰器的工作方式类似于模块化的 Cosmos SDK 前处理函数，但它可以接收一个 `next` 参数，该参数可能是另一个装饰器或一个 Handler(不接收下一个参数)。 这些装饰器可以链接在一起，一个装饰器作为链中前一个装饰器的“next”参数传入。 该链以路由器结束，该路由器可以接受 tx 并路由到适当的 msg 处理程序。
 
-这种方法的一个主要好处是一个装饰器可以将其内部逻辑包装在下一个检查器/交付器周围。 编织装饰器可以执行以下操作：
+这种方法的一个主要好处是一个装饰器可以将其内部逻辑包装在下一个检查器/交付器周围。 编织装饰器可以执行以下操作:
 
 ```go
 // Example Decorator's Deliver function
@@ -59,12 +59,12 @@ func (example Decorator) Deliver(ctx Context, store KVStore, tx Tx, next Deliver
 }
 ```
 
-优点：
+优点:
 
 1. Weave 装饰器可以包裹链中的下一个装饰器/处理程序。在某些情况下，预处理和后处理的能力可能很有用。
 2. 提供上述解决方案中无法实现的嵌套模块化结构，同时还允许像上述解决方案一样采用线性的一个接一个的结构。
 
-缺点：
+缺点:
 
 1. 乍一看很难理解在给定 `ctx`、`store` 和 `tx` 的装饰器运行后会发生的状态更新。一个装饰器可以在其函数体内调用任意数量的嵌套装饰器，每个装饰器都可能在调用链上的下一个装饰器之前进行一些预处理和后处理。因此，要了解装饰器在做什么，还必须了解链条上的其他装饰器也在做什么。这可能会变得非常难以理解。一种线性的、一个接一个的方法虽然不那么强大，但可能更容易推理。
 
@@ -174,13 +174,13 @@ func CustomSigVerify(ctx Context, tx Tx, simulate bool) (newCtx Context, err err
 moduleManager.SetAnteHandlerOrder([]AnteHandler(ValidateMemo, CustomSigVerify, DistrModuleAnteHandler))
 ```
 
-优点：
+优点:
 
 1. 允许 ante 功能尽可能模块化。
 2.对于不需要自定义前置功能的用户，前置处理程序的工作方式与ModuleManager中BeginBlock和EndBlock的工作方式几乎没有区别。
 3.还是很容易理解的
 
-缺点：
+缺点:
 
 1. 不能像 Weave 那样用装饰器包装 antehandlers。
 
@@ -268,12 +268,12 @@ antehandler := ChainAnteDecorators(NewSetUpContextDecorator(), NewSigVerifyDecor
 bapp.SetAnteHandler(antehandler)
 ```
 
-优点：
+优点:
 
 1. 允许一个装饰器对下一个 AnteHandler 进行预处理和后处理，类似于 Weave 设计。
 2. 不需要破坏baseapp API。 如果用户愿意，他们仍然可以设置单个 AnteHandler。
 
-缺点：
+缺点:
 
 1. 装饰器模式可能有一个难以理解的深层嵌套结构，这可以通过在 `ChainAnteDecorators` 函数中明确列出装饰器顺序来缓解。
 2. 不使用 ModuleManager 设计。 由于这已经用于 BeginBlocker/EndBlocker，因此该提议似乎与该设计模式不一致。

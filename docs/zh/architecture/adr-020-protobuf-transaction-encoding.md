@@ -1,20 +1,20 @@
-# ADR 020：协议缓冲区事务编码
+# ADR 020:协议缓冲区事务编码
 
 ## 变更日志
 
-- 2020 年 3 月 6 日：初稿
-- 2020 年 3 月 12 日：API 更新
-- 2020 年 4 月 13 日：添加了有关“oneof”接口处理的详细信息
-- 2020 年 4 月 30 日：切换到“任何”
-- 2020 年 5 月 14 日：描述公钥编码
-- 2020 年 6 月 8 日：将“TxBody”和“AuthInfo”作为字节存储在“SignDoc”中；文档“TxRaw”作为广播和存储类型。
-- 2020 年 8 月 7 日：使用 ADR 027 序列化 `SignDoc`。
-- 2020 年 8 月 19 日：将序列字段从 `SignDoc` 移动到 `SignerInfo`，如 [#6966](https://github.com/cosmos/cosmos-sdk/issues/6966) 中所述。
-- 2020 年 9 月 25 日：删除“PublicKey”类型，取而代之的是“secp256k1.PubKey”、“ed25519.PubKey”和“multisig.LegacyAminoPubKey”。
-- 2020 年 10 月 15 日：向“AccountRetriever”接口添加“GetAccount”和“GetAccountWithHeight”方法。
-- 2021 年 2 月 24 日：Cosmos SDK 不再使用 Tendermint 的 `PubKey` 接口，而是使用它自己的 `cryptotypes.PubKey`。更新以反映这一点。
-- 2021 年 5 月 3 日：将 `clientCtx.JSONMarshaler` 重命名为 `clientCtx.JSONCodec`。
-- 2021 年 6 月 10 日：添加`clientCtx.Codec: codec.Codec`。
+- 2020 年 3 月 6 日:初稿
+- 2020 年 3 月 12 日:API 更新
+- 2020 年 4 月 13 日:添加了有关“oneof”接口处理的详细信息
+- 2020 年 4 月 30 日:切换到“任何”
+- 2020 年 5 月 14 日:描述公钥编码
+- 2020 年 6 月 8 日:将“TxBody”和“AuthInfo”作为字节存储在“SignDoc”中；文档“TxRaw”作为广播和存储类型。
+- 2020 年 8 月 7 日:使用 ADR 027 序列化 `SignDoc`。
+- 2020 年 8 月 19 日:将序列字段从 `SignDoc` 移动到 `SignerInfo`，如 [#6966](https://github.com/cosmos/cosmos-sdk/issues/6966) 中所述。
+- 2020 年 9 月 25 日:删除“PublicKey”类型，取而代之的是“secp256k1.PubKey”、“ed25519.PubKey”和“multisig.LegacyAminoPubKey”。
+- 2020 年 10 月 15 日:向“AccountRetriever”接口添加“GetAccount”和“GetAccountWithHeight”方法。
+- 2021 年 2 月 24 日:Cosmos SDK 不再使用 Tendermint 的 `PubKey` 接口，而是使用它自己的 `cryptotypes.PubKey`。更新以反映这一点。
+- 2021 年 5 月 3 日:将 `clientCtx.JSONMarshaler` 重命名为 `clientCtx.JSONCodec`。
+- 2021 年 6 月 10 日:添加`clientCtx.Codec: codec.Codec`。
 
 ## 地位
 
@@ -55,7 +55,7 @@ Cosmos SDK 客户端的协议缓冲区迁移路径。
 兼容性。
 
 为了方便签名，交易被分成`TxBody`，
-下面的`SignDoc` 和`signatures` 将重新使用它：
+下面的`SignDoc` 和`signatures` 将重新使用它:
 
 
 ```proto
@@ -167,20 +167,20 @@ enum SignMode {
 
 ### 签名
 
-以下所有签名模式旨在提供以下保证：
+以下所有签名模式旨在提供以下保证:
 
-- **无延展性**：一旦交易，`TxBody` 和`AuthInfo` 不能改变
+- **无延展性**:一旦交易，`TxBody` 和`AuthInfo` 不能改变
   已签署
-- **可预测的气体**：如果我正在签署一项我支付费用的交易，
+- **可预测的气体**:如果我正在签署一项我支付费用的交易，
   最后的gas完全取决于我签署的内容
 
 这些保证为消息签名者提供了最大的信心
 中间人对“Tx”的操纵不会导致任何有意义的变化。
 
-####`SIGN_MODE_DIRECT`
+#### `SIGN_MODE_DIRECT`
 
 “直接”签名行为是将原始“TxBody”字节签名为广播
-电线。这具有以下优点：
+电线。这具有以下优点:
 
 - 需要超出标准协议的最少附加客户端功能
   缓冲区实现
@@ -189,7 +189,7 @@ enum SignMode {
   可能被攻击者利用)
 
 签名使用下面的`SignDoc` 结构化，它重用了
-`TxBody` 和 `AuthInfo`，只添加签名所需的字段： 
+`TxBody` 和 `AuthInfo`，只添加签名所需的字段: 
 
 ```proto
 // types/types.proto
@@ -203,7 +203,7 @@ message SignDoc {
 }
 ```
 
-为了以默认模式登录，客户端执行以下步骤：
+为了以默认模式登录，客户端执行以下步骤:
 
 1. 使用任何有效的 protobuf 实现序列化 `TxBody` 和 `AuthInfo`。
 2. 创建一个 `SignDoc` 并使用 [ADR 027](./adr-027-deterministic-protobuf-serialization.md) 对其进行序列化。
@@ -215,17 +215,17 @@ message SignDoc {
 除了防止
 某些形式的可升级性(将在本文档后面讨论)。
 
-签名验证者做：
+签名验证者做:
 
 1. 反序列化一个 `TxRaw` 并拉出 `body` 和 `auth_info`。
 2. 根据消息创建所需签名者地址的列表。
-3. 对于每个需要的签名者：
+3. 对于每个需要的签名者:
    - 从状态中提取帐号和序列。
    - 从 state 或 `AuthInfo` 的 `signer_infos` 获取公钥。
    - 创建一个 `SignDoc` 并使用 [ADR 027](./adr-027-deterministic-protobuf-serialization.md) 对其进行序列化。
    - 针对序列化的“SignDoc”验证相同列表位置的签名。
 
-####`SIGN_MODE_LEGACY_AMINO`
+#### `SIGN_MODE_LEGACY_AMINO`
 
 为了支持旧钱包和交易所，Amino JSON 将暂时
 支持交易签名。一旦钱包和交易所有了
@@ -238,7 +238,7 @@ Cosmos Hub 和其他链可能会选择立即禁用 Amino 签名。
 JSON 格式并使用 REST `/tx/encode` 将其编码为 protobuf
 广播前的端点。
 
-####`SIGN_MODE_TEXTUAL`
+#### `SIGN_MODE_TEXTUAL`
 
 正如 [\#6078](https://github.com/cosmos/cosmos-sdk/issues/6078) 中广泛讨论的那样，
 需要人类可读的签名编码，尤其是硬件
@@ -262,7 +262,7 @@ JSON 格式并使用 REST `/tx/encode` 将其编码为 protobuf
 ### 未知字段过滤
 
 protobuf 消息中的未知字段通常应该被事务拒绝
-处理器，因为：
+处理器，因为:
 
 - 重要数据可能存在于未知字段中，如果忽略，将
   导致客户出现意外行为
@@ -278,7 +278,7 @@ protobuf 消息中的未知字段通常应该被事务拒绝
 1024-2047 的范围)被认为是可以安全的非关键领域
 如果未知，则忽略。
 
-为了解决这个问题，我们需要一个未知字段过滤器：
+为了解决这个问题，我们需要一个未知字段过滤器:
 
 - 始终拒绝未签名内容中的未知字段(即顶级`Tx` 和
   `AuthInfo` 的未签名部分(如果基于签名模式存在)
@@ -292,9 +292,9 @@ protobuf 消息中的未知字段通常应该被事务拒绝
 
 Cosmos SDK 中的公钥实现了 `cryptotypes.PubKey` 接口。
 我们建议使用 `Any` 进行 protobuf 编码，就像我们使用其他接口一样(例如，在 `BaseAccount.PubKey` 和 `SignerInfo.PublicKey` 中)。
-实现了以下公钥：secp256k1、secp256r1、ed25519 和 legacy-multisignature。
+实现了以下公钥:secp256k1、secp256r1、ed25519 和 legacy-multisignature。
 
-Ex： 
+Ex: 
 
 ```proto
 message PubKey {
@@ -346,13 +346,13 @@ type TxBuilder interface {
 }
 ```
 
-然后我们更新 `Context` 以获得新字段：`Codec`、`TxGenerator`、
+然后我们更新 `Context` 以获得新字段:`Codec`、`TxGenerator`、
 和`AccountRetriever`，我们更新`AppModuleBasic.GetTxCmd`
 一个“上下文”，它应该预先填充所有这些字段。
 
 然后每个客户端方法应该使用“Init”方法之一来重新初始化
 预填充的“上下文”。 `tx.GenerateOrBroadcastTx` 可用于
-生成或广播交易。 例如： 
+生成或广播交易。 例如: 
 
 ```go
 import "github.com/spf13/cobra"
@@ -378,7 +378,7 @@ func NewCmdDoSomething(clientCtx client.Context) *cobra.Command {
 作为近期未来的改进，以便分类帐应用程序和其他钱包
 可以优雅地从 Amino JSON 过渡。
 
-###`SIGN_MODE_DIRECT_AUX`
+### `SIGN_MODE_DIRECT_AUX`
 
 (\*在 https://github.com/cosmos/cosmos-sdk/issues/6078#issuecomment-628026933 中记录为选项(3))
 
@@ -404,10 +404,10 @@ AuthInfo 中的签名者将被延迟，直到收集到签名。
 他们正在使用的模式。但是，辅助签名者无需担心
 费用或汽油，因此可以只签署“TxBody”。
 
-要在“SIGN_MODE_DIRECT_AUX”中生成签名，将遵循以下步骤：
+要在“SIGN_MODE_DIRECT_AUX”中生成签名，将遵循以下步骤:
 
 1. 编码`SignDocAux`(与字段必须序列化的要求相同
-   为了)： 
+   为了): 
 
 ```proto
 // types/types.proto

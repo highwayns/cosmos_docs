@@ -1,6 +1,6 @@
 # ADR 创建过程
 
-1.复制`adr-template.md`文件。使用以下文件名模式：`adr-next_number-title.md`
+1.复制`adr-template.md`文件。使用以下文件名模式:`adr-next_number-title.md`
 2. 如果您想获得早期反馈，请创建一个拉取请求草案。
 3. 确保上下文和解决方案清晰且有据可查。
 4. 在 [README](./README.md) 文件的列表中添加一个条目。
@@ -24,7 +24,7 @@ ADR 创建是一个**迭代**过程。与其试图在单个 ADR 拉取请求中�
 
 ### ADR 状态
 
-状态有两个组成部分： 
+状态有两个组成部分: 
 
 ```
 {CONSENSUS STATUS} {IMPLEMENTATION STATUS}
@@ -42,13 +42,13 @@ DRAFT -> PROPOSED -> LAST CALL yyyy-mm-dd -> ACCEPTED | REJECTED -> SUPERSEDED b
                      ABANDONED
 ```
 
-+ `草案`：[可选] 正在进行中的 ADR，尚未准备好进行一般审查。这是为了在草案拉取请求表单中展示早期工作并获得早期反馈。
-+ `PROPOSED`：涵盖完整解决方案架构的 ADR，仍在审查中 - 项目利益相关者尚未达成一致。
-+ `LAST CALL <上次通话的日期>`：[可选] 明确通知我们即将接受更新。将状态更改为“LAST CALL”意味着(Cosmos SDK 维护者的)社会共识已经达成，我们仍然希望给它时间让社区做出反应或分析。
-+ `ACCEPTED`：ADR 将代表当前已实施或将要实施的架构设计。
-+ `REJECTED`：如果项目利益相关者之间达成共识，ADR 可以从提议或接受变为拒绝。
-+ `SUPERSEEDED by ADR-xxx`：已被新 ADR 取代的 ADR。
-+ `ABANDONED`：原作者不再追求 ADR。
++ `草案`:[可选] 正在进行中的 ADR，尚未准备好进行一般审查。这是为了在草案拉取请求表单中展示早期工作并获得早期反馈。
++ `PROPOSED`:涵盖完整解决方案架构的 ADR，仍在审查中 - 项目利益相关者尚未达成一致。
++ `LAST CALL <上次通话的日期>`:[可选] 明确通知我们即将接受更新。将状态更改为“LAST CALL”意味着(Cosmos SDK 维护者的)社会共识已经达成，我们仍然希望给它时间让社区做出反应或分析。
++ `ACCEPTED`:ADR 将代表当前已实施或将要实施的架构设计。
++ `REJECTED`:如果项目利益相关者之间达成共识，ADR 可以从提议或接受变为拒绝。
++ `SUPERSEEDED by ADR-xxx`:已被新 ADR 取代的 ADR。
++ `ABANDONED`:原作者不再追求 ADR。
 
 ## ADR 中使用的语言
 

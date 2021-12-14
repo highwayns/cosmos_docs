@@ -1,15 +1,15 @@
-# ADR 031：Protobuf 消息服务
+# ADR 031:Protobuf 消息服务
 
 ## 变更日志
 
-- 2020-10-05：初稿
-- 2021-04-21：删除 `ServiceMsg`s 以遵循 Protobuf `Any` 的规范，参见 [#9063](https://github.com/cosmos/cosmos-sdk/issues/9063)。
+- 2020-10-05:初稿
+- 2021-04-21:删除 `ServiceMsg`s 以遵循 Protobuf `Any` 的规范，参见 [#9063](https://github.com/cosmos/cosmos-sdk/issues/9063)。
 
 ## 地位
 
 公认
 
-## 抽象的
+## 摘要
 
 我们希望利用 protobuf `service` 定义来定义 `Msg`s，这将为我们提供重要的开发人员 UX
 生成的代码方面的改进以及返回类型现在将得到明确定义的事实。
@@ -55,7 +55,7 @@ Cosmos SDK 解析该值并将其返回给用户。
 他们生成的代码作为 `Msg` 处理程序的替代品。
 
 下面我们定义这将如何查找来自 `x/gov` 模块的 `SubmitProposal` 消息。
-我们从 `Msg` `service` 定义开始： 
+我们从 `Msg` `service` 定义开始: 
 
 ```proto
 package cosmos.gov;
@@ -77,13 +77,13 @@ message MsgSubmitProposalResponse {
 ```
 
 虽然这最常用于 gRPC，但像这样重载 protobuf 的“服务”定义并不违反
-[protobuf 规范](https://developers.google.com/protocol-buffers/docs/proto3#services) 的意图是：
+[protobuf 规范](https://developers.google.com/protocol-buffers/docs/proto3#services) 的意图是:
 > 如果您不想使用 gRPC，也可以在您自己的 RPC 实现中使用协议缓冲区。
-使用这种方法，我们将获得一个自动生成的 `MsgServer` 接口：
+使用这种方法，我们将获得一个自动生成的 `MsgServer` 接口:
 
 除了明确指定返回类型之外，这还有利于生成客户端和服务器代码。 在服务器上
 一方面，这几乎就像一个自动生成的守门员方法，最终可能会被用于代替守门员
-(见 [\#7093](https://github.com/cosmos/cosmos-sdk/issues/7093))： 
+(见 [\#7093](https://github.com/cosmos/cosmos-sdk/issues/7093)): 
 
 ```go
 package gov
@@ -97,9 +97,9 @@ type MsgServer interface {
 逻辑。使用异步回调的 Protobuf 库，如 [protobuf.js](https://github.com/protobufjs/protobuf.js#using-services)
 可以使用它来注册特定消息的回调，即使是包含多个 `Msg` 的事务。
 
-每个 `Msg` 服务方法都应该有一个请求参数：它对应的 `Msg` 类型。例如，上面的`Msg`服务方法`/cosmos.gov.v1beta1.Msg/SubmitProposal`只有一个请求参数，即`Msg`类型`/cosmos.gov.v1beta1.MsgSubmitProposal`。重要的是读者必须清楚地理解 `Msg` 服务(Protobuf 服务)和 `Msg` 类型(Protobuf 消息)之间的命名差异，以及它们的完全限定名称的差异。
+每个 `Msg` 服务方法都应该有一个请求参数:它对应的 `Msg` 类型。例如，上面的`Msg`服务方法`/cosmos.gov.v1beta1.Msg/SubmitProposal`只有一个请求参数，即`Msg`类型`/cosmos.gov.v1beta1.MsgSubmitProposal`。重要的是读者必须清楚地理解 `Msg` 服务(Protobuf 服务)和 `Msg` 类型(Protobuf 消息)之间的命名差异，以及它们的完全限定名称的差异。
 
-这个约定已经决定在更规范的 `Msg...Request` 名称上主要是为了向后兼容，但也为了更好的可读性在 `TxBody.messages`(见下面的 [编码部分](#encoding))：包含 `/ cosmos.gov.MsgSubmitProposal` 比那些包含 `/cosmos.gov.v1beta1.MsgSubmitProposalRequest` 的读起来更好。
+这个约定已经决定在更规范的 `Msg...Request` 名称上主要是为了向后兼容，但也为了更好的可读性在 `TxBody.messages`(见下面的 [编码部分](#encoding)):包含 `/ cosmos.gov.MsgSubmitProposal` 比那些包含 `/cosmos.gov.v1beta1.MsgSubmitProposalRequest` 的读起来更好。
 
 这种约定的一个后果是每个 `Msg` 类型只能是一个 `Msg` 服务方法的请求参数。但是，我们认为这种限制是明确的一种很好的做法。
 
@@ -126,7 +126,7 @@ type MsgServer interface {
 到“AppModule”，它允许模块注册 gRPC 查询器。
 
 为了注册 `Msg` 服务，我们尝试通过转换 `RegisterQueryService` 来尝试一种更具扩展性的方法
-到更通用的`RegisterServices`方法： 
+到更通用的`RegisterServices`方法: 
 
 ```go
 type AppModule interface {
@@ -158,7 +158,7 @@ func (am AppModule) RegisterServices(cfg Configurator) {
 
 就像查询服务一样，`Msg` 服务方法可以检索`sdk.Context`
 来自使用 `sdk.UnwrapSDKContext` 的 `context.Context` 参数方法
-方法： 
+方法: 
 
 ```go
 package gov
@@ -177,7 +177,7 @@ func (k Keeper) SubmitProposal(goCtx context.Context, params *types.MsgSubmitPro
 
 这种设计改变了模块功能的公开和访问方式。它弃用了现有的 `Handler` 接口和 `AppModule.Route`，转而支持上述 [Protocol Buffer Services](https://developers.google.com/protocol-buffers/docs/proto3#services) 和服务路由。这极大地简化了代码。我们不再需要创建处理程序和守护程序。使用协议缓冲区自动生成的客户端清楚地分离了模块和模块用户之间的通信接口。控制逻辑(又名处理程序和守护程序)不再公开。模块接口可以看作是通过客户端 API 访问的黑匣子。值得注意的是，客户端接口也是由 Protocol Buffers 生成的。
 
-这也允许我们改变我们执行功能测试的方式。我们将模拟客户端而不是模拟 AppModules 和路由器(服务器将保持隐藏)。更具体地说：我们永远不会在 `moduleB` 中模拟 `moduleA.MsgServer`，而是模拟 `moduleA.MsgClient`。可以将其视为使用外部服务(例如数据库或在线服务器...)。我们假设客户端和服务器之间的传输由生成的协议缓冲区正确处理。
+这也允许我们改变我们执行功能测试的方式。我们将模拟客户端而不是模拟 AppModules 和路由器(服务器将保持隐藏)。更具体地说:我们永远不会在 `moduleB` 中模拟 `moduleA.MsgServer`，而是模拟 `moduleA.MsgClient`。可以将其视为使用外部服务(例如数据库或在线服务器...)。我们假设客户端和服务器之间的传输由生成的协议缓冲区正确处理。
 
 最后，关闭客户端 API 的模块会打开 ADR-033 中讨论的理想 OCAP 模式。由于服务器实现和接口是隐藏的，没有人可以持有“管理员”/服务器，并且将被迫在客户端接口上进行中继，这将推动开发人员进行正确的封装和软件工程模式。
 
@@ -196,7 +196,7 @@ func (k Keeper) SubmitProposal(goCtx context.Context, params *types.MsgSubmitPro
 ## 参考
 
 - [初始 Github 问题 \#7122](https://github.com/cosmos/cosmos-sdk/issues/7122)
-- [proto 3 语言指南：定义服务](https://developers.google.com/protocol-buffers/docs/proto3#services)
+- [proto 3 语言指南:定义服务](https://developers.google.com/protocol-buffers/docs/proto3#services)
 - [初始预`Any``Msg`设计](https://docs.google.com/document/d/1eEgYgvgZqLE45vETjhwIw4VOqK-5hwQtZtjVbiXnIGc)
 - [ADR 020](./adr-020-protobuf-transaction-encoding.md)
 - [ADR 021](./adr-021-protobuf-query-encoding.md) 

@@ -1,14 +1,14 @@
-# ADR 046：模块参数
+# ADR 046:模块参数
 
 ## 变更日志
 
-- 2021 年 9 月 22 日：初稿
+- 2021 年 9 月 22 日:初稿
 
 ## 地位
 
 建议的
 
-## 抽象的
+## 摘要
 
 此 ADR 描述了 Cosmos SDK 模块如何使用、交互、
 并存储它们各自的参数。
@@ -50,7 +50,7 @@ Protobuf Msg 服务方法，它将验证和更新所有参数
 
 请注意，由开发人员决定如何构建他们的参数和
 相应的 `sdk.Msg` 消息。考虑当前定义的参数
-`x/auth` 使用 `x/params` 模块进行参数管理： 
+`x/auth` 使用 `x/params` 模块进行参数管理: 
 
 ```protobuf
 message Params {
@@ -76,7 +76,7 @@ message Params {
 参数更改建议是使用 `x/gov` 模块提出的。 执行是通过
 `x/authz` 授权给根 `x/gov` 模块的帐户。
 
-继续使用`x/auth`，我们演示一个更完整的例子： 
+继续使用`x/auth`，我们演示一个更完整的例子: 
 ```go
 type Params struct {
 	MaxMemoCharacters      uint64
@@ -113,7 +113,7 @@ func ParamsFromMsg(msg *types.MsgUpdateParams) Params {
 }
 ```
 
-还应提供 gRPC `Service` 查询，例如： 
+还应提供 gRPC `Service` 查询，例如: 
 
 ```protobuf
 service Query {
@@ -159,7 +159,7 @@ message QueryParamsResponse {
 - 可以发出特殊事件，允许触发钩子。 
 ### Negative
 
-- 模块参数对于模块开发者来说变得稍微有些负担：
+- 模块参数对于模块开发者来说变得稍微有些负担:
      - 模块现在负责持久化和检索参数状态
      - 现在需要模块具有唯一的消息处理程序来处理参数
        每个唯一参数数据结构的变化。 

@@ -97,6 +97,6 @@ manager 的 `Route()` 方法简单地构造了一个调用 `handler.go` 中定�
 
 +++ https://github.com/cosmos/cosmos-sdk/blob/v0.40.0-rc1/x/auth/vesting/msg_server.go#L73-L85
 
-## 下一个{hide}
+## 下一个 {hide}
 
 了解 [查询服务](./query-services.md) {hide} 

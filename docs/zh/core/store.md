@@ -52,35 +52,35 @@ Cosmos SDK 附带了大量存储来持久化应用程序的状态。 默认情�
 
 ###存储界面
 
-在其核心，Cosmos SDK `store` 是一个对象，它包含一个 `CacheWrapper` 并具有一个 `GetStoreType()` 方法：
+在其核心，Cosmos SDK `store` 是一个对象，它包含一个 `CacheWrapper` 并具有一个 `GetStoreType()` 方法:
 
 +++ https://github.com/cosmos/cosmos-sdk/blob/v0.40.0-rc6/store/types/store.go#L15-L18
 
-`GetStoreType` 是一个返回存储类型的简单方法，而一个 `CacheWrapper` 是一个简单的接口，它通过 `Write` 方法实现存储读取缓存和写入分支：
+`GetStoreType` 是一个返回存储类型的简单方法，而一个 `CacheWrapper` 是一个简单的接口，它通过 `Write` 方法实现存储读取缓存和写入分支:
 
 +++ https://github.com/cosmos/cosmos-sdk/blob/v0.40.0-rc6/store/types/store.go#L240-L264
 
-分支和缓存在 Cosmos SDK 中无处不在，并且需要在每种商店类型上实现。一个存储分支创建一个隔离的、临时的存储分支，可以在不影响主要底层存储的情况下传递和更新。这用于触发临时状态转换，如果发生错误，可以稍后恢复。在 [context](./context.md#Store-branching) 中阅读更多相关信息
+分支和缓存在 Cosmos SDK 中无处不在，并且需要在每种存储类型上实现。一个存储分支创建一个隔离的、临时的存储分支，可以在不影响主要底层存储的情况下传递和更新。这用于触发临时状态转换，如果发生错误，可以稍后恢复。在 [context](./context.md#Store-branching) 中阅读更多相关信息
 
-### 提交商店
+### 提交存储
 
-提交存储是一种能够提交对底层树或数据库所做更改的存储。 Cosmos SDK 通过使用 `Committer` 扩展基本存储接口来区分简单存储和提交存储：
+提交存储是一种能够提交对底层树或数据库所做更改的存储。 Cosmos SDK 通过使用 `Committer` 扩展基本存储接口来区分简单存储和提交存储:
 
 +++ https://github.com/cosmos/cosmos-sdk/blob/v0.40.0-rc6/store/types/store.go#L29-L33
 
-`Committer` 是一个接口，它定义了将更改持久化到磁盘的方法：
+`Committer` 是一个接口，它定义了将更改持久化到磁盘的方法:
 
 +++ https://github.com/cosmos/cosmos-sdk/blob/v0.40.0-rc6/store/types/store.go#L20-L27
 
-`CommitID` 是状态树的确定性提交。它的哈希值返回到底层的共识引擎并存储在块头中。请注意，提交存储接口有多种用途，其中之一是确保不是每个对象都可以提交存储。作为 Cosmos SDK 的 [object-capabilities 模型](./ocap.md) 的一部分，只有 `baseapp` 应该具有提交存储的能力。例如，这就是为什么模块通常用来访问商店的 `ctx.KVStore()` 方法返回一个 `KVStore` 而不是 `CommitKVStore` 的原因。
+`CommitID` 是状态树的确定性提交。它的哈希值返回到底层的共识引擎并存储在块头中。请注意，提交存储接口有多种用途，其中之一是确保不是每个对象都可以提交存储。作为 Cosmos SDK 的 [object-capabilities 模型](./ocap.md) 的一部分，只有 `baseapp` 应该具有提交存储的能力。例如，这就是为什么模块通常用来访问存储的 `ctx.KVStore()` 方法返回一个 `KVStore` 而不是 `CommitKVStore` 的原因。
 
 Cosmos SDK 提供了多种存储类型，最常用的是 [`CommitMultiStore`](#multistore)、[`KVStore`](#kvstore) 和 [`GasKv` store](#gaskv-store)。 [其他类型的存储](#other-stores) 包括`Transient` 和`TraceKV` 存储。
 
-## 多店
+## 多存储
 
 ### 多存储接口
 
-每个 Cosmos SDK 应用程序都在其根部拥有一个多存储以保持其状态。 multistore 是一个遵循 `Multistore` 接口的 `KVStores` 存储：
+每个 Cosmos SDK 应用程序都在其根部拥有一个多存储以保持其状态。 multistore 是一个遵循 `Multistore` 接口的 `KVStores` 存储:
 
 +++ https://github.com/cosmos/cosmos-sdk/blob/v0.40.0-rc6/store/types/store.go#L104-L133
 
@@ -88,7 +88,7 @@ Cosmos SDK 提供了多种存储类型，最常用的是 [`CommitMultiStore`](#m
 
 ### CommitMultiStore
 
-Cosmos SDK 中使用的`Multistore` 的主要类型是`CommitMultiStore`，它是`Multistore` 接口的扩展：
+Cosmos SDK 中使用的`Multistore` 的主要类型是`CommitMultiStore`，它是`Multistore` 接口的扩展:
 
 +++ https://github.com/cosmos/cosmos-sdk/blob/v0.40.0-rc6/store/types/store.go#L141-L184
 
@@ -110,25 +110,25 @@ Cosmos SDK 中使用的`Multistore` 的主要类型是`CommitMultiStore`，它�
 
 ### `KVStore` 和 `CommitKVStore` 接口
 
-`KVStore` 是一个简单的键值存储，用于存储和检索数据。 `CommitKVStore` 是一个也实现了 `Committer` 的 `KVStore`。默认情况下，安装在`baseapp` 的主`CommitMultiStore` 中的商店是`CommitKVStore`。 `KVStore` 接口主要用于限制模块访问提交者。
+`KVStore` 是一个简单的键值存储，用于存储和检索数据。 `CommitKVStore` 是一个也实现了 `Committer` 的 `KVStore`。默认情况下，安装在`baseapp` 的主`CommitMultiStore` 中的存储是`CommitKVStore`。 `KVStore` 接口主要用于限制模块访问提交者。
 
-模块使用单个“KVStore”来管理全局状态的子集。 `KVStores` 可以被持有特定键的对象访问。这个`key` 应该只暴露给定义商店的模块的 [`keeper`](../building-modules/keeper.md)。
+模块使用单个“KVStore”来管理全局状态的子集。 `KVStores` 可以被持有特定键的对象访问。这个`key` 应该只暴露给定义存储的模块的 [`keeper`](../building-modules/keeper.md)。
 
 `CommitKVStore`s 由它们各自的 `key` 代理声明，并安装在应用程序的 [multistore](#multistore) 上的[主应用程序文件](../basics/app-anatomy.md#core-application-file )。在同一个文件中，`key` 也被传递给负责管理 store 的模块的 `keeper`。
 
 +++ https://github.com/cosmos/cosmos-sdk/blob/v0.40.0-rc6/store/types/store.go#L189-L219
 
-除了传统的`Get` 和`Set` 方法，`KVStore` 必须提供一个`Iterator(start, end)` 方法，该方法返回一个`Iterator` 对象。它用于迭代一系列键，通常是共享公共前缀的键。以下是银行模块 keeper 的示例，用于迭代所有帐户余额：
+除了传统的`Get` 和`Set` 方法，`KVStore` 必须提供一个`Iterator(start, end)` 方法，该方法返回一个`Iterator` 对象。它用于迭代一系列键，通常是共享公共前缀的键。以下是银行模块 keeper 的示例，用于迭代所有帐户余额:
 
 +++ https://github.com/cosmos/cosmos-sdk/blob/v0.40.0-rc6/x/bank/keeper/view.go#L115-L134
 
-###`IAVL`存储
+### `IAVL`存储
 
 `baseapp` 中使用的 `KVStore` 和 `CommitKVStore` 的默认实现是 `iavl.Store`。
 
 +++ https://github.com/cosmos/cosmos-sdk/blob/v0.40.0-rc6/store/iavl/store.go#L37-L40
 
-`iavl`存储基于 [IAVL 树](https://github.com/tendermint/iavl)，这是一种自平衡二叉树，可保证：
+`iavl`存储基于 [IAVL 树](https://github.com/tendermint/iavl)，这是一种自平衡二叉树，可保证:
 
 - `Get` 和 `Set` 操作的复杂度为 O(log n)，其中 n 是树中元素的数量。
 - 迭代有效地返回范围内的排序元素。
@@ -156,7 +156,7 @@ Cosmos SDK 中使用的`Multistore` 的主要类型是`CommitMultiStore`，它�
 
 +++ https://github.com/cosmos/cosmos-sdk/blob/v0.40.0-rc6/x/params/types/subspace.go#L20-L30
 
-瞬态存储通常通过 [`context`](./context.md) 通过 `TransientStore()` 方法访问：
+瞬态存储通常通过 [`context`](./context.md) 通过 `TransientStore()` 方法访问:
 
 +++ https://github.com/cosmos/cosmos-sdk/blob/v0.40.0-rc6/types/context.go#L232-L235
 
@@ -188,15 +188,15 @@ Cosmos SDK 应用程序使用 [`gas`](../basics/gas-fees.md) 来跟踪资源使�
 
 +++ https://github.com/cosmos/cosmos-sdk/blob/v0.40.0-rc6/store/gaskv/store.go#L13-L19
 
-当父`KVStore`的方法被调用时，`GasKv.Store`会根据`Store.gasConfig`自动消耗适量的gas：
+当父`KVStore`的方法被调用时，`GasKv.Store`会根据`Store.gasConfig`自动消耗适量的gas:
 
 +++ https://github.com/cosmos/cosmos-sdk/blob/v0.40.0-rc6/store/types/gas.go#L153-L162
 
-默认情况下，所有 `KVStores` 在检索时都包含在 `GasKv.Stores` 中。这是在 [`context`](./context.md) 的 `KVStore()` 方法中完成的：
+默认情况下，所有 `KVStores` 在检索时都包含在 `GasKv.Stores` 中。这是在 [`context`](./context.md) 的 `KVStore()` 方法中完成的:
 
 +++ https://github.com/cosmos/cosmos-sdk/blob/v0.40.0-rc6/types/context.go#L227-L230
 
-在这种情况下，使用默认气体配置：
+在这种情况下，使用默认气体配置:
 
 +++ https://github.com/cosmos/cosmos-sdk/blob/v0.40.0-rc6/store/types/gas.go#L164-L175
 
@@ -228,17 +228,17 @@ Cosmos SDK 应用程序使用 [`gas`](../basics/gas-fees.md) 来跟踪资源使�
 
 当调用`KVStore.Set` 或`KVStore.Delete` 方法时，`listenkv.Store` 会自动将操作写入到`Store.listeners` 集合中。
 
-## 新商店包 (`store/v2`)
+## 新存储包 (`store/v2`)
 
 SDK 正在过渡到使用此处列出的类型作为状态存储的默认接口。在撰写本文时，这些无法在应用程序中使用，并且与 `CommitMultiStore` 和相关类型不直接兼容。
 
 ### `BasicKVStore` 接口
 
-仅提供基本 CRUD 功能(`Get`、`Set`、`Has` 和 `Delete` 方法)的接口，没有迭代或缓存。这用于部分公开较大商店的组件，例如`flat.Store`。
+仅提供基本 CRUD 功能(`Get`、`Set`、`Has` 和 `Delete` 方法)的接口，没有迭代或缓存。这用于部分公开较大存储的组件，例如`flat.Store`。
 
 ### 平铺
 
-`flat.Store` 是新的默认持久化存储，它在内部解耦了状态存储和承诺方案的关注点。值直接存储在后备键值数据库(“存储”存储桶)中，而值的哈希映射到能够生成加密承诺的单独存储(“状态承诺”存储桶，使用 `smt.商店`)。
+`flat.Store` 是新的默认持久化存储，它在内部解耦了状态存储和承诺方案的关注点。值直接存储在后备键值数据库(“存储”存储桶)中，而值的哈希映射到能够生成加密承诺的单独存储(“状态承诺”存储桶，使用 `smt.存储`)。
 
 这可以选择性地构建为对每个存储桶使用不同的后端数据库。
 
@@ -248,6 +248,6 @@ SDK 正在过渡到使用此处列出的类型作为状态存储的默认接口�
 
 一个 `BasicKVStore`，用于部分公开底层存储的功能(例如，允许访问 `flat.Store` 中的承诺存储)。
 
-## 下一个{hide}
+## 下一个 {hide}
 
 了解 [encoding](./encoding.md) {hide} 

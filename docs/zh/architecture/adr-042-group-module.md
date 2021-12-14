@@ -1,20 +1,20 @@
-# ADR 042：组模块
+# ADR 042:组模块
 
 ## 变更日志
 
-- 2020/04/09：初稿
+- 2020/04/09:初稿
 
 ## 地位
 
 草稿
 
-## 抽象的
+## 摘要
 
 该 ADR 定义了“x/group”模块，该模块允许创建和管理链上多重签名帐户，并基于可配置的决策策略启用对消息执行的投票。
 
 ## 语境
 
-Cosmos SDK 遗留的氨基多重签名机制有一定的局限性：
+Cosmos SDK 遗留的氨基多重签名机制有一定的局限性:
 
 - 密钥轮换是不可能的，尽管这可以通过 [account rekeying](adr-034-account-rekeying.md) 解决。
 - 无法更改阈值。
@@ -143,7 +143,7 @@ message GroupAccountInfo {
 它在关闭之前获得了足够的支持。
 这两个值都必须小于全链最大投票窗口参数。
 
-我们定义了所有决策策略都必须实现的 `DecisionPolicy` 接口： 
+我们定义了所有决策策略都必须实现的 `DecisionPolicy` 接口: 
 
 ```go
 type DecisionPolicy interface {
@@ -185,10 +185,10 @@ message ThresholdDecisionPolicy {
 提案由一组 `sdk.Msg` 组成，如果提案
 通过以及与提案相关的任何元数据。 这些 `sdk.Msg` 被验证为 `Msg/CreateProposal` 请求验证的一部分。 他们还应该将他们的签名者设置为组帐户。
 
-在内部，提案还跟踪：
+在内部，提案还跟踪:
 
-- 它当前的“状态”：已提交、关闭或中止
-- 它的“结果”：未完成、接受或拒绝
+- 它当前的“状态”:已提交、关闭或中止
+- 它的“结果”:未完成、接受或拒绝
 - 它的“VoteState”以“Tally”的形式，根据新投票和执行提案时计算。 
 
 ```proto
@@ -265,15 +265,15 @@ message Tally {
 
 ## 进一步讨论
 
-- `/group` 和 `x/gov` 作为支持提案和投票的收敛：https://github.com/cosmos/cosmos-sdk/discussions/9066
-- `x/group` 未来可能的改进：
+- `/group` 和 `x/gov` 作为支持提案和投票的收敛:https://github.com/cosmos/cosmos-sdk/discussions/9066
+- `x/group` 未来可能的改进:
      - 在提交时执行提案 (https://github.com/regen-network/regen-ledger/issues/288)
      - 撤回提案(https://github.com/regen-network/cosmos-modules/issues/41)
      - 使“Tally”更加灵活并支持非二元选择
 
 ## 参考
 
-- 初始规格：
+- 初始规格:
      - https://gist.github.com/aaronc/b60628017352df5983791cad30babe56#group-module
      - [#5236](https://github.com/cosmos/cosmos-sdk/pull/5236)
-- 在 Cosmos SDK 中添加 `x/group` 的建议：[#7633](https://github.com/cosmos/cosmos-sdk/issues/7633) 
+- 在 Cosmos SDK 中添加 `x/group` 的建议:[#7633](https://github.com/cosmos/cosmos-sdk/issues/7633) 

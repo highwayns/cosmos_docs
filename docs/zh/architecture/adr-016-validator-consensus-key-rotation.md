@@ -1,9 +1,9 @@
-# ADR 016：验证者共识密钥轮换
+# ADR 016:验证者共识密钥轮换
 
 ## 变更日志
 
-- 2019 年 10 月 23 日：初稿
-- 2019 年 11 月 28 日：增加密钥轮换费
+- 2019 年 10 月 23 日:初稿
+- 2019 年 11 月 28 日:增加密钥轮换费
 
 ## 语境
 
@@ -46,8 +46,8 @@
     - 验证者共识密钥更新可以通过将功率更改为零来创建新的 + 删除旧的来完成。
     - 因此，我们希望我们甚至根本不需要更改tendermint 代码库来实现此功能。
 - `staking` 模块中的新创世参数
-    - `MaxConsPubKeyRotations`：在最近的解除绑定期间验证者可以执行的最大轮换次数。建议使用默认值 10(第 11 次密钥轮换将被拒绝)
-    - `InitialKeyRotationFee`：在最近解绑期间没有发生密钥轮换时的初始密钥轮换费用。建议使用默认值 1atom(最近解绑期间第一次密钥轮换的费用为 1atom) 
+    - `MaxConsPubKeyRotations`:在最近的解除绑定期间验证者可以执行的最大轮换次数。建议使用默认值 10(第 11 次密钥轮换将被拒绝)
+    - `InitialKeyRotationFee`:在最近解绑期间没有发生密钥轮换时的初始密钥轮换费用。建议使用默认值 1atom(最近解绑期间第一次密钥轮换的费用为 1atom) 
 
 ### Workflow
 
@@ -98,7 +98,7 @@
 6.在`AllocateTokens`的`previousVotes`迭代逻辑中，`previousVote`使用`OldConsPubKey`匹配`ConsPubKeyRotationHistory`，并替换validator进行令牌分配
 7. 将 `ValidatorSigningInfo` 和 `ValidatorMissedBlockBitArray` 从 `OldConsPubKey` 迁移到 `NewConsPubKey`
 
-- 注意：以上所有功能都应在`staking` 模块中实现。 
+- 注意:以上所有功能都应在`staking` 模块中实现。 
 
 ## Status
 

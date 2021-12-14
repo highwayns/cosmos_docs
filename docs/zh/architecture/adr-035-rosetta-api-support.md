@@ -1,4 +1,4 @@
-# ADR 035：Rosetta API 支持
+# ADR 035:Rosetta API 支持
 
 ##作者
 
@@ -9,7 +9,7 @@
 
 ## 变更日志
 
-- 2021-05-12：外部库 [cosmos-rosetta-gateway](https://github.com/tendermint/cosmos-rosetta-gateway) 已移入 Cosmos SDK。
+- 2021-05-12:外部库 [cosmos-rosetta-gateway](https://github.com/tendermint/cosmos-rosetta-gateway) 已移入 Cosmos SDK。
 
 ## 语境
 
@@ -28,24 +28,24 @@
 很明显，将 Rosetta API 支持添加到 Cosmos SDK 将为所有开发人员和
 生态系统中基于 Cosmos SDK 的链。如何实施是关键。
 
-拟议设计的驱动原则是：
+拟议设计的驱动原则是:
 
-1. **可扩展性：** 应用程序开发人员设置网络必须尽可能无风险和无痛
+1. **可扩展性:** 应用程序开发人员设置网络必须尽可能无风险和无痛
    用于公开 Rosetta API 兼容服务的配置。
-2. **长期支持：** 本提案旨在为所有受支持的 Cosmos SDK 版本系列提供支持。
-3. **成本效率：** 将 Rosetta API 规范的更改从 `master` 向后移植到各种稳定版
+2. **长期支持:** 本提案旨在为所有受支持的 Cosmos SDK 版本系列提供支持。
+3. **成本效率:** 将 Rosetta API 规范的更改从 `master` 向后移植到各种稳定版
    Cosmos SDK 的分支是需要降低的成本。
 
-我们将通过以下方式实现这些原则：
+我们将通过以下方式实现这些原则:
 
 1. 会有一个包`rosetta/lib`
-   用于实现核心 Rosetta API 功能，特别是：
+   用于实现核心 Rosetta API 功能，特别是:
    一个。类型和接口(`Client`、`OfflineClient`...)，这将设计与实现细节分开。
    湾`Server` 功能独立于 Cosmos SDK 版本。
    C。 `Online/OfflineNetwork`，不导出，使用`Client`接口实现rosetta API，查询节点，构建tx等。
    d.用于扩展 rosetta 错误的 `errors` 包。
 2.由于Cosmos发布系列的差异，每个系列都会有自己的`Client`接口的具体实现。
-3. 在应用程序中启动 API 服务有两种选择：
+3. 在应用程序中启动 API 服务有两种选择:
    一个。 API共享应用进程
    湾API 特定的过程。
 
@@ -59,11 +59,11 @@
 
 `Server` 是一个简单的 `struct`，它启动并侦听设置中指定的端口。 这旨在用于所有积极支持的 Cosmos SDK 版本。
 
-构造函数如下：
+构造函数如下:
 
 `func NewServer(设置设置)(服务器，错误)`
 
-用于构建新服务器的“设置”如下： 
+用于构建新服务器的“设置”如下: 
 
 ```go
 // Settings define the rosetta server settings
@@ -167,7 +167,7 @@ type OfflineClient interface {
 基于版本的 Cosmos SDK 实现负责满足 `Client` 接口。
 在 Stargate、Launchpad 和 0.37 中，我们引入了 rosetta.Msg 的概念，此消息不在共享存储库中，因为 sdk.Msg 类型因 Cosmos SDK 版本而异。
 
-rosetta.Msg 界面如下： 
+rosetta.Msg 界面如下: 
 
 ```go
 // Msg represents a cosmos-sdk message that can be converted from and to a rosetta operation.
@@ -182,7 +182,7 @@ type Msg interface {
 
 ### 3. API 服务调用
 
-如开头所述，应用程序开发人员将有两种调用 Rosetta API 服务的方法：
+如开头所述，应用程序开发人员将有两种调用 Rosetta API 服务的方法:
 
 1. 应用程序和API共享进程
 2. 独立API服务

@@ -1,8 +1,8 @@
-# ADR 021：协议缓冲区查询编码
+# ADR 021:协议缓冲区查询编码
 
 ## 变更日志
 
-- 2020 年 3 月 27 日：初稿
+- 2020 年 3 月 27 日:初稿
 
 ## 地位
 
@@ -29,7 +29,7 @@ GRPC 协议。但是，协议缓冲区规范表明
 协议缓冲区编码。因此，我们可以使用`service`定义来指定
 自定义 ABCI 查询，甚至重用大量 GRPC 基础设施。
 
-每个带有自定义查询的模块都应该定义一个规范命名为 `Query` 的服务： 
+每个带有自定义查询的模块都应该定义一个规范命名为 `Query` 的服务: 
 
 ```proto
 // x/bank/types/types.proto
@@ -52,7 +52,7 @@ service Query {
 提供使用“Any”的通用模块级查询并不排除应用程序
 还提供返回使用应用程序级`oneof`s的应用程序级查询。
 
-`gov` 模块的假设示例如下所示： 
+`gov` 模块的假设示例如下所示: 
 
 ```proto
 // x/gov/types/types.proto
@@ -73,7 +73,7 @@ message AnyProposal {
 
 为了实现查询服务，我们可以复用现有的[gogo protobuf](https://github.com/gogo/protobuf)
 grpc 插件，它为名为 `Query` 的服务生成一个名为的接口
-`QueryServer` 如下： 
+`QueryServer` 如下: 
 
 ```go
 type QueryServer interface {
@@ -86,13 +86,13 @@ type QueryServer interface {
 
 这个生成的接口中的第一个参数是一个通用的`context.Context`，
 而查询器方法通常需要一个 `sdk.Context` 实例来读取
-从商店。 由于可以将任意值附加到 `context.Context`
+从存储。 由于可以将任意值附加到 `context.Context`
 使用 `WithValue` 和 `Value` 方法，Cosmos SDK 应该提供一个函数
 `sdk.UnwrapSDKContext` 从提供的对象中检索 `sdk.Context`
 `上下文。上下文`。
 
 上面银行模块的`QueryBalance`的示例实现将
-看起来像：
+看起来像:
 
 ```go
 type Querier struct {
@@ -109,7 +109,7 @@ func (q Querier) QueryBalance(ctx context.Context, params *types.QueryBalancePar
 
 上面的查询服务器实现将使用`AppModule`s 注册
 一种可以简单实现的新方法`RegisterQueryService(grpc.Server)`
-如下： 
+如下: 
 
 ```go
 // x/bank/module.go
@@ -195,7 +195,7 @@ Cosmos SDK 应为应用程序提供 CLI 命令以启动 GRPC 网关
 
 gogo protobuf grpc 插件除了服务器之外还生成客户端接口
 接口。对于上面定义的 `Query` 服务，我们会得到一个 `QueryClient`
-界面如： 
+界面如: 
 
 ```go
 type QueryClient interface {
@@ -212,7 +212,7 @@ type QueryClient interface {
 1Context`将接收一个新方法`QueryConn`，该方法返回一个`ClientConn`
 将呼叫路由到 ABCI 查询
 
-客户端(例如 CLI 方法)将能够调用这样的查询方法： 
+客户端(例如 CLI 方法)将能够调用这样的查询方法: 
 
 ```go
 clientCtx := client.NewContext()
@@ -224,7 +224,7 @@ result, err := queryClient.QueryBalance(gocontext.Background(), params)
 ### Testing
 
 测试将能够直接从 keeper 和 `sdk.Context` 创建查询客户端
-使用“QueryServerTestHelper”的引用如下： 
+使用“QueryServerTestHelper”的引用如下: 
 
 ```go
 queryHelper := baseapp.NewQueryServerTestHelper(ctx)

@@ -236,6 +236,6 @@ ABCI 方法继承自 [Baseapp](../core/baseapp.md);它通过以下方式同步�
 通过执行其状态更改来交付它，并提交这些更改。 `Tx` 本身，
 以 `[]byte` 形式存储在一个块中并附加到区块链中。
 
-## 下一个{hide}
+## 下一个 {hide}
 
 了解 [accounts](./accounts.md) {hide} 

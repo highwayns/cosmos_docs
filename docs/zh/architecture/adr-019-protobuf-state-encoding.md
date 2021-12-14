@@ -1,13 +1,13 @@
-# ADR 019：协议缓冲区状态编码
+# ADR 019:协议缓冲区状态编码
 
 ## 变更日志
 
-- 2020 年 2 月 15 日：初稿
-- 2020 年 2 月 24 日：更新处理带有接口字段的消息
-- 2020 年 4 月 27 日：将用于接口的 `oneof` 的用法转换为 `Any`
-- 2020 年 5 月 15 日：描述“cosmos_proto”扩展和氨基兼容性
-- 2020 年 12 月 4 日：将“MarshalAny”和“UnmarshalAny”移动并重命名到“codec.Codec”界面中。
-- 2021 年 2 月 24 日：删除在 [#6843](https://github.com/cosmos/cosmos-sdk/pull/6843) 中已放弃的“HybridCodec”的提及。
+- 2020 年 2 月 15 日:初稿
+- 2020 年 2 月 24 日:更新处理带有接口字段的消息
+- 2020 年 4 月 27 日:将用于接口的 `oneof` 的用法转换为 `Any`
+- 2020 年 5 月 15 日:描述“cosmos_proto”扩展和氨基兼容性
+- 2020 年 12 月 4 日:将“MarshalAny”和“UnmarshalAny”移动并重命名到“codec.Codec”界面中。
+- 2021 年 2 月 24 日:删除在 [#6843](https://github.com/cosmos/cosmos-sdk/pull/6843) 中已放弃的“HybridCodec”的提及。
 
 ## 地位
 
@@ -18,7 +18,7 @@
 目前，Cosmos SDK 使用 [go-amino](https://github.com/tendermint/go-amino/) 进行二进制
 和 JSON 对象编码通过线路在逻辑对象和持久性对象之间带来奇偶校验。
 
-来自氨基文档：
+来自氨基文档:
 
 > Amino 是一种对象编码规范。它是 Proto3 的子集，带有接口扩展
 > 支持。有关更多信息，请参阅 [Proto3 规范](https://developers.google.com/protocol-buffers/docs/proto3)
@@ -26,7 +26,7 @@
 >
 > Amino 编码协议的目标是将奇偶校验引入逻辑对象和持久对象。
 
-Amino 还旨在实现以下目标(不是完整列表)：
+Amino 还旨在实现以下目标(不是完整列表):
 
 - 二进制字节必须可以用模式解码。
 - 架构必须是可升级的。
@@ -40,7 +40,7 @@ Cosmos SDK 中真正灵活的跨语言和多客户端兼容编码协议的需求
 在 Cosmos SDK <sup>1</sup> 中被证明是一个非常大的性能瓶颈。这是
 主要体现在模拟性能和应用事务吞吐量上。
 
-因此，我们需要采用符合以下状态序列化标准的编码协议：
+因此，我们需要采用符合以下状态序列化标准的编码协议:
 
 - 语言不可知论
 - 平台不可知
@@ -60,10 +60,10 @@ Cosmos SDK 中真正灵活的跨语言和多客户端兼容编码协议的需求
 在 Cosmos SDK 中持久化结构化数据，同时为
 希望继续使用 Amino 的应用程序。我们将通过更新模块来提供这种机制
 接受一个编解码器接口，`Marshaler`，而不是一个具体的 Amino 编解码器。此外，Cosmos SDK
-将提供 `Marshaler` 接口的两个具体实现：`AminoCodec` 和 `ProtoCodec`。
+将提供 `Marshaler` 接口的两个具体实现:`AminoCodec` 和 `ProtoCodec`。
 
-- `AminoCodec`：使用 Amino 进行二进制和 JSON 编码。
-- `ProtoCodec`：使用 Protobuf 进行二进制和 JSON 编码。
+- `AminoCodec`:使用 Amino 进行二进制和 JSON 编码。
+- `ProtoCodec`:使用 Protobuf 进行二进制和 JSON 编码。
 
 模块将使用在应用程序中实例化的任何编解码器。默认情况下，Cosmos SDK 的`simapp`
 在`MakeTestEncodingConfig`中实例化一个`ProtoCodec`作为`Marshaler`的具体实现
@@ -84,7 +84,7 @@ Cosmos SDK 中的少数地方仍然使用 Amino JSON 硬编码，例如 Legacy A
 请注意，任何需要对基本类型(如“bool”或“int64”)进行编码的业务逻辑都应使用
 [gogoprotobuf](https://github.com/gogo/protobuf) 值类型。
 
-例子： 
+例子: 
 
 ```go
   ts, err := gogotypes.TimestampProto(completionTime)
@@ -100,7 +100,7 @@ Cosmos SDK 中的少数地方仍然使用 Amino JSON 硬编码，例如 Legacy A
 必须定义自己的编解码器接口来扩展`Marshaler`。 这些特定的接口是独一无二的
 到模块，并将包含知道如何序列化所需接口的方法契约。
 
-例子： 
+例子: 
 
 ```go
 // x/auth/types/codec.go
@@ -123,7 +123,7 @@ type Codec interface {
 [扩展讨论](https://github.com/cosmos/cosmos-sdk/issues/6030)后，
 这被选为应用程序级`oneof`s的首选替代方案
 就像我们最初的 protobuf 设计一样。支持“Any”的论据可以是
-总结如下：
+总结如下:
 
 * `Any` 提供了一个更简单、更一致的客户端用户体验来处理
 比应用级`oneof`s 需要更多协调的接口
@@ -159,7 +159,7 @@ type Codec interface {
 
 为了防止这种情况，我们引入了一种用于解码“Any”的类型注册机制
 通过`InterfaceRegistry`接口将值转换为具体类型
-与 Amino 的类型注册有一些相似之处：
+与 Amino 的类型注册有一些相似之处:
 
 ```go
 type InterfaceRegistry interface {
@@ -181,7 +181,7 @@ type InterfaceRegistry interface {
 除了作为白名单，InterfaceRegistry还可以作为
 传达满足客户端接口的具体类型列表。
 
-在 .proto 文件中：
+在 .proto 文件中:
 
 * 接受接口的字段应该用 `cosmos_proto.accepts_interface` 注释
 使用与 `protoName` 相同的全限定名称传递给 `InterfaceRegistry.RegisterInterface`
@@ -192,7 +192,7 @@ type InterfaceRegistry interface {
 可以通过代码生成、反射和/或静态 linting 使用。
 
 实现`InterfaceRegistry`的相同结构也将实现一个
-接口`InterfaceUnpacker` 用于解包`Any`s： 
+接口`InterfaceUnpacker` 用于解包`Any`s: 
 
 ```go
 type InterfaceUnpacker interface {
@@ -213,7 +213,7 @@ golang用法。
 
 `InterfaceRegistry` 将成为 `ProtoCodec` 的成员
 如上所述。 为了让模块注册接口类型，应用模块
-可以选择实现以下接口： 
+可以选择实现以下接口: 
 
 ```go
 type InterfaceModule interface {
@@ -247,7 +247,7 @@ func UnmarshalEvidence(cdc codec.BinaryCodec, bz []byte) (eviexported.Evidence, 
 
 类似的概念适用于包含接口字段的消息。
 例如，我们可以定义 `MsgSubmitEvidence` 如下，其中 `Evidence` 是
-一个界面： 
+一个界面: 
 
 ```protobuf
 // x/evidence/types/types.proto
@@ -271,7 +271,7 @@ message MsgSubmitEvidence {
 
 实现解包的反序列化的`UnpackInterfaces`阶段
 在需要之前用 `Any` 包裹的接口，我们创建一个接口
-`sdk.Msg`s 和其他类型可以实现： 
+`sdk.Msg`s 和其他类型可以实现: 
 
 ```go
 type UnpackInterfacesMessage interface {
@@ -298,7 +298,7 @@ type UnpackInterfacesMessage interface {
 再次阅读它不需要解组。
 
 `MsgSubmitEvidence` 可以实现 `UnpackInterfaces`，加上一个便利的 getter
-`GetEvidence` 如下： 
+`GetEvidence` 如下: 
 
 ```go
 func (msg MsgSubmitEvidence) UnpackInterfaces(ctx sdk.InterfaceRegistry) error {
@@ -318,7 +318,7 @@ func (msg MsgSubmitEvidence) GetEvidence() eviexported.Evidence {
 `Any` 将像常规的 Amino 接口一样进行氨基封送(假设它们
 已在 Amino 正确注册)。
 
-为了使此功能正常工作：
+为了使此功能正常工作:
 
 - **所有遗留代码必须使用 `*codec.LegacyAmino` 而不是 `*amino.Codec`，后者是
   现在是一个可以正确处理 `Any`** 的包装器

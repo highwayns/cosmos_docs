@@ -12,7 +12,7 @@ Cosmos SDK 使运营商和开发人员能够深入了解
 [go-metrics](https://github.com/armon/go-metrics) 库。 这允许发射和收集
 指标通过简单的 API 调用。
 
-例子： 
+例子: 
 
 ```go
 func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
@@ -26,7 +26,7 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 包括添加有用的标签，或者他们必须直接使用 `go-metrics` 库。 最好
 为度量添加尽可能多的上下文和足够的维度，因此“遥测”包
 建议。 无论使用何种包或方法，Cosmos SDK 都支持以下指标
-类型：
+类型:
 
 * 仪表
 * 总结
@@ -39,7 +39,7 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 使用`telemetry` 包(例如chain-id)发出的指标。 全局标签以列表形式提供
 [名称，值] 元组。
 
-例子： 
+例子: 
 
 ```toml
 global-labels = [
@@ -57,7 +57,7 @@ global-labels = [
 有用，但不会增加超出接收器限制的基数。 一般的经验法则是不要
 超过 10 的基数。
 
-考虑以下具有足够粒度和足够基数的示例：
+考虑以下具有足够粒度和足够基数的示例:
 
 * 开始/结束拦截器时间
 * 使用的 TX 气体
@@ -65,7 +65,7 @@ global-labels = [
 * 铸造的代币数量
 * 创建的帐户数量
 
-以下示例暴露了太多的基数，甚至可能没有用处：
+以下示例暴露了太多的基数，甚至可能没有用处:
 
 * 有金额的账户间转账
 *来自唯一地址的投票/存款金额

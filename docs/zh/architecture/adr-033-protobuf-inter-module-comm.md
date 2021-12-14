@@ -1,18 +1,18 @@
-# ADR 033：基于 Protobuf 的模块间通信
+# ADR 033:基于 Protobuf 的模块间通信
 
 ## 变更日志
 
-- 2020-10-05：初稿
+- 2020-10-05:初稿
 
 ## 地位
 
 建议的
 
-## 抽象的
+## 摘要
 
 该 ADR 引入了一个系统，用于利用 protobuf `Query` 和 `Msg` 进行许可的模块间通信
 [ADR 021](./adr-021-protobuf-query-encoding.md) 中定义的服务定义和
-[ADR 031](./adr-031-msg-service.md) 提供：
+[ADR 031](./adr-031-msg-service.md) 提供:
 
 - 稳定的基于 protobuf 的模块接口可能会在以后取代 keeper 范式
 - 更强的模块间对象能力(OCAPs)保证
@@ -20,11 +20,11 @@
 
 ## 语境
 
-在当前的 Cosmos SDK 文档中关于 [Object-Capability Model](../core/ocap.md)，它指出：
+在当前的 Cosmos SDK 文档中关于 [Object-Capability Model](../core/ocap.md)，它指出:
 
 > 我们假设一个繁荣的 Cosmos SDK 模块生态系统很容易组合成区块链应用程序，将包含有缺陷或恶意的模块。
 
-目前没有一个蓬勃发展的 Cosmos SDK 模块生态系统。我们假设这部分是由于：
+目前没有一个蓬勃发展的 Cosmos SDK 模块生态系统。我们假设这部分是由于:
 
 1. 缺乏稳定的 v1.0 Cosmos SDK 来构建模块。模块接口正在发生变化，有时是戏剧性的，从
 点发布到点发布，通常有充分的理由，但这并不能建立稳定的基础。
@@ -63,7 +63,7 @@
 在[ADR 021](./adr-021-protobuf-query-encoding.md)中，一种使用protobuf服务定义来定义查询器的机制
 引入并在 [ADR 31](./adr-031-msg-service.md) 中，添加了使用 protobuf 服务定义 `Msg` 的机制。
 Protobuf 服务定义生成两个 golang 接口，分别代表服务的客户端和服务器端加上
-一些帮助代码。以下是银行 `cosmos.bank.Msg/Send` 消息类型的最小示例： 
+一些帮助代码。以下是银行 `cosmos.bank.Msg/Send` 消息类型的最小示例: 
 
 ```go
 package bank
@@ -85,7 +85,7 @@ type MsgServer interface {
 此 ADR 不需要创建新的 protobuf 定义或服务。相反，它利用相同的原型
 基于客户端已经用于模块间通信的服务接口。
 
-使用这种 `QueryClient`/`MsgClient` 方法比将 Keepers 暴露给外部模块有以下主要好处：
+使用这种 `QueryClient`/`MsgClient` 方法比将 Keepers 暴露给外部模块有以下主要好处:
 
 1. 使用 [buf](https://buf.build/docs/break-overview) 检查 Protobuf 类型的破坏性更改，因为
 protobuf 的设计方式将为我们提供强大的向后兼容性保证，同时允许向前
@@ -97,7 +97,7 @@ protobuf 的设计方式将为我们提供强大的向后兼容性保证，同�
 启用操作原子性([目前有问题](https://github.com/cosmos/cosmos-sdk/issues/8030))。模块到模块调用中的任何故障都将导致整个模块的故障
 交易
 
-这种机制具有以下额外好处：
+这种机制具有以下额外好处:
 
 - 通过代码生成减少样板，以及
 - 允许通过像 CosmWasm 这样的 VM 或使用 gRPC 的子进程使用其他语言的模块
@@ -119,7 +119,7 @@ protobuf 的设计方式将为我们提供强大的向后兼容性保证，同�
 例如，模块`A`可以使用它的`A.ModuleKey`为`/cosmos.bank.Msg/Send`交易创建`MsgSend`对象。 `MsgSend` 验证
 将确保 `from` 帐户(在本例中为 `A.ModuleKey`)是签名者。
 
-下面是一个假设模块 `foo` 与 `x/bank` 交互的示例： 
+下面是一个假设模块 `foo` 与 `x/bank` 交互的示例: 
 
 ```go
 package foo
@@ -165,7 +165,7 @@ denom 前缀仅限于某些模块(如在
 或可用于不同池(例如质押池)或管理帐户(例如组
 帐户)。我们也可以认为模块子账户类似于派生密钥——有一个根密钥，然后是一些
 派生路径。 `ModuleID` 是一个简单的结构体，它包含模块名称和可选的“派生”路径，
-并根据 [ADR-028](https://github.com/cosmos/cosmos-sdk/blob/master/docs/architecture/adr-028-public-key-addresses) 中的`AddressHash` 方法形成其地址.md)： 
+并根据 [ADR-028](https://github.com/cosmos/cosmos-sdk/blob/master/docs/architecture/adr-028-public-key-addresses) 中的`AddressHash` 方法形成其地址.md): 
 
 ```go
 type ModuleID struct {
@@ -186,7 +186,7 @@ func (key ModuleID) Address() []byte {
 真正的恶意模块需要绕过捕获的变量和内存的直接操作
 `ModuleKey` 安全性。
 
-两个 `ModuleKey` 类型是 `RootModuleKey` 和 `DerivedModuleKey`： 
+两个 `ModuleKey` 类型是 `RootModuleKey` 和 `DerivedModuleKey`: 
 
 ```go
 type Invoker func(callInfo CallInfo) func(ctx context.Context, request, response interface{}, opts ...interface{}) error
@@ -237,7 +237,7 @@ func (fooMsgServer *MsgServer) Bar(ctx context.Context, req *MsgBar) (*MsgBarRes
 重申一遍，闭包只允许访问授权调用。无论如何都无法访问其他任何东西
 名字冒充。
 
-下面是“RootModuleKey”的“grpc.ClientConn.Invoke”实现的粗略草图： 
+下面是“RootModuleKey”的“grpc.ClientConn.Invoke”实现的粗略草图: 
 
 ```go
 func (key RootModuleKey) Invoke(ctx context.Context, method string, args, reply interface{}, opts ...grpc.CallOption) error {
@@ -250,7 +250,7 @@ func (key RootModuleKey) Invoke(ctx context.Context, method string, args, reply 
 
 在 [ADR 031](./adr-031-msg-service.md) 中，引入了 `AppModule.RegisterService(Configurator)` 方法。 支持
 模块间通信，我们扩展了 `Configurator` 接口以传入 `ModuleKey` 并允许模块
-使用 `RequireServer()` 指定它们对其他模块的依赖： 
+使用 `RequireServer()` 指定它们对其他模块的依赖: 
 
 ```go
 type Configurator interface {
@@ -270,7 +270,7 @@ type Configurator interface {
 由于模块不再能够直接相互访问，因此模块可能具有未满足的依赖关系。 确保;确定
 如果模块依赖在启动时解决，则应添加 `Configurator.RequireServer` 方法。 `模块管理器`
 将确保在应用程序启动之前可以解决所有使用 RequireServer 声明的依赖项。 一个例子
-模块 `foo` 可以像这样声明它对 `x/bank` 的依赖： 
+模块 `foo` 可以像这样声明它对 `x/bank` 的依赖: 
 
 ```go
 package foo
@@ -305,7 +305,7 @@ Cosmos SDK 中的查询通常是未经许可的，因此允许一个模块查询
 ### 内部方法
 
 在许多情况下，我们可能希望模块调用其他模块上的方法，而这些模块根本没有暴露给客户端。为了这
-为了达到目的，我们将 `InternalServer` 方法添加到 `Configurator` 中： 
+为了达到目的，我们将 `InternalServer` 方法添加到 `Configurator` 中: 
 
 ```go
 type Configurator interface {
@@ -337,9 +337,9 @@ ADR。
 
 ### 未来的工作
 
-未来的其他改进可能包括：
+未来的其他改进可能包括:
 
-* 自定义代码生成：
+* 自定义代码生成:
     * 简化接口(例如，使用 `sdk.Context` 而不是 `context.Context` 生成代码)
     * 优化模块间调用 - 例如在第一次调用后缓存解析的方法
 * 将`StoreKey`s 和`ModuleKey`s 组合到一个接口中，以便模块有一个单独的 OCAPs 句柄
@@ -355,9 +355,9 @@ ADR。
 Cosmos SDK，甚至可以用于模块间 OCAP，如 [\#5931](https://github.com/cosmos/cosmos-sdk/issues/5931) 中所述。
 
 本 ADR 中描述的方法的优势主要在于它如何与 Cosmos SDK 的其他部分集成，
-具体来说：
+具体来说:
 
-* protobuf 以便：
+* protobuf 以便:
     * 可以利用接口的代码生成来获得更好的开发用户体验
     * 使用 [buf](https://docs.buf.build/break-overview) 对模块接口进行版本控制和检查是否损坏
 * 根据 ADR 028 的子模块帐户

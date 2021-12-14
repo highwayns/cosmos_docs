@@ -1,4 +1,4 @@
-# ADR 036：任意消息签名规范
+# ADR 036:任意消息签名规范
 
 ## 变更日志
 
@@ -15,7 +15,7 @@
 
 草稿
 
-## 抽象的
+## 摘要
 
 目前，在 Cosmos SDK 中，没有像以太坊那样签署任意消息的约定。我们在此规范中为 Cosmos SDK 生态系统提出了一种对链下任意消息进行签名和验证的方法。
 
@@ -39,7 +39,7 @@ Cosmos SDK 0.40 还引入了“auth_info”的概念，可以指定SIGN_MODES。
 
 创建 `offchain` proto 定义，我们使用 `offchain` 包扩展 auth 模块以提供验证和签署离线消息的功能。
 
-链下交易遵循以下规则：
+链下交易遵循以下规则:
 
 - 备忘录必须是空的
 - nonce，序号必须等于0
@@ -55,7 +55,7 @@ Cosmos SDK 0.40 还引入了“auth_info”的概念，可以指定SIGN_MODES。
 
 应用程序开发人员决定如何处理“数据”，我们所处理的意思是序列化和反序列化过程以及“数据”应该代表的对象。
 
-原型定义： 
+原型定义: 
 
 ```proto
 // MsgSignData defines an arbitrary, general-purpose, off-chain message
@@ -67,7 +67,7 @@ message MsgSignData {
 }
 ```
 
-签名 MsgSignData json 示例： 
+签名 MsgSignData json 示例: 
 
 ```json
 {

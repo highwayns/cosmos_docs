@@ -1,9 +1,9 @@
-# ADR 17：历史标题模块
+# ADR 17:历史标题模块
 
 ## 变更日志
 
-- 2019 年 11 月 26 日：第一个版本开始
-- 2019 年 12 月 2 日：第一版的最终稿
+- 2019 年 11 月 26 日:第一个版本开始
+- 2019 年 12 月 2 日:第一版的最终稿
 
 ## 语境
 
@@ -11,9 +11,9 @@
 
 ## 决定
 
-应用程序必须在持久存储中存储最新的 `n` 个标头。 起初，这家商店可能是当前的 Merklised存储。 以后可以使用非 Merklised 存储，因为不需要证明。
+应用程序必须在持久存储中存储最新的 `n` 个标头。 起初，这家存储可能是当前的 Merklised存储。 以后可以使用非 Merklised 存储，因为不需要证明。
 
-应用程序必须在处理 `abci.RequestBeginBlock` 时立即通过存储新标头来存储此信息： 
+应用程序必须在处理 `abci.RequestBeginBlock` 时立即通过存储新标头来存储此信息: 
 
 ```golang
 func BeginBlock(ctx sdk.Context, keeper HistoricalHeaderKeeper, req abci.RequestBeginBlock) abci.ResponseBeginBlock {

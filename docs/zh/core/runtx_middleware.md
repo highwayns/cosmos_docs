@@ -16,7 +16,7 @@ type RecoveryHandler func(recoveryObj interface{}) error
 
 `recoveryObj` 是 `buildin` Golang 包中 `recover()` 函数的返回值。
 
-**合同：**
+**合同:**
 
 - 如果 `recoveryObj` 没有被处理并且应该传递给下一个恢复中间件，RecoveryHandler 返回 `nil`；
 - 如果处理了 `recoveryObj`，RecoveryHandler 返回一个非零的 `error`；
@@ -31,7 +31,7 @@ BaseApp 方法将恢复中间件添加到默认恢复链中。
 
 假设我们想要在发生某些特定错误时发出“共识失败”链状态。
 
-我们有一个恐慌的模块管理员： 
+我们有一个恐慌的模块管理员: 
 
 ```go
 func (k FooKeeper) Do(obj interface{}) {
@@ -43,7 +43,7 @@ func (k FooKeeper) Do(obj interface{}) {
 }
 ```
 
-默认情况下，恐慌会被恢复，错误信息将被打印到日志中。 要覆盖该行为，我们应该注册一个自定义 RecoveryHandler： 
+默认情况下，恐慌会被恢复，错误信息将被打印到日志中。 要覆盖该行为，我们应该注册一个自定义 RecoveryHandler: 
 
 ```go
 // Cosmos SDK application constructor

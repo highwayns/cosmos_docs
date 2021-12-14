@@ -51,9 +51,9 @@ type App struct {
 首先，在应用程序引导期间初始化的重要参数:
 
 - [`CommitMultiStore`](./store.md#commitmultistore):这是应用程序的主存储，
-  它保存在 [每个块的结尾](#commit) 提交的规范状态。这家店
+  它保存在 [每个块的结尾](#commit) 提交的规范状态。这家存储
   **不** 缓存，这意味着它不用于更新应用程序的易失性(未提交)状态。
-  `CommitMultiStore` 是一个多商店，意思是商店的商店。应用程序的每个模块
+  `CommitMultiStore` 是一个多存储，意思是存储的存储。应用程序的每个模块
   在 multi-store 中使用一个或多个 `KVStores` 来持久化它们的状态子集。
 - 数据库:`commitMultiStore` 使用 `db` 来处理数据持久性。
 - [`Msg` 服务路由器](#msg-service-router):`msgServiceRouter` 有助于将 `sdk.Msg` 请求路由到适当的

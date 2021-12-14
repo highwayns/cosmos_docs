@@ -1,8 +1,8 @@
-# ADR 032：类型化事件
+# ADR 032:类型化事件
 
 ## 变更日志
 
-- 2020 年 9 月 28 日：初稿
+- 2020 年 9 月 28 日:初稿
 
 ##作者
 
@@ -14,7 +14,7 @@
 
 建议的
 
-## 抽象的
+## 摘要
 
 目前在 Cosmos SDK 中，事件在每条消息的处理程序中以及“BeginBlock”和“EndBlock”中定义。每个模块都没有为每个事件定义类型，它们被实现为`map[string]string`。最重要的是，这使得这些事件难以使用，因为它需要大量的原始字符串匹配和解析。该提案的重点是更新事件以使用每个模块中定义的 **typed events**，从而使事件的发出和订阅变得更加容易。此工作流程来自 Akash Network 团队的经验。
 
@@ -34,7 +34,7 @@
 
 ## 决定
 
-__Step-1__：在 `types` 包中实现附加功能：`EmitTypedEvent` 和 `ParseTypedEvent` 函数 
+__Step-1__:在 `types` 包中实现附加功能:`EmitTypedEvent` 和 `ParseTypedEvent` 函数 
 
 ```go
 // types/events.go
@@ -111,7 +111,7 @@ func ParseTypedEvent(event abci.Event) (proto.Message, error) {
 
 当我们在tendermint websocket上订阅发出的事件时，它们以`abci.Event`的形式发出。 `ParseTypedEvent` 将事件解析回它的原始 proto 消息。
 
-__Step-2__：在每个模块中为 msgs 的类型化事件添加原型定义：
+__Step-2__:在每个模块中为 msgs 的类型化事件添加原型定义:
 
 例如，让我们以 `gov` 模块的 `MsgSubmitProposal` 来实现这个事件的类型。 
 
@@ -128,7 +128,7 @@ message EventSubmitProposal {
 }
 ```
 
-__Step-3__：重构事件发射以使用使用`sdk.EmitTypedEvent`创建和发射的类型化事件：
+__Step-3__:重构事件发射以使用使用`sdk.EmitTypedEvent`创建和发射的类型化事件:
 
 ```go
 // x/gov/handler.go
@@ -147,7 +147,7 @@ func handleMsgSubmitProposal(ctx sdk.Context, keeper keeper.Keeper, msg types.Ms
 
 #### 如何在`Client` 中订阅这些类型的事件
 
-> 注意：下面的完整代码示例
+> 注意:下面的完整代码示例
 
 用户将能够使用 `client.Context.Client.Subscribe` 订阅并使用使用 `EventHandler` 发出的事件。
 

@@ -1,14 +1,14 @@
 # 就地存储迁移
 
 ::: 警告
-在实时链上运行迁移之前，请阅读并理解所有就地商店迁移文档。
+在实时链上运行迁移之前，请阅读并理解所有就地存储迁移文档。
 :::
 
-使用自定义就地商店迁移逻辑顺利升级您的应用程序模块。 {概要}
+使用自定义就地存储迁移逻辑顺利升级您的应用程序模块。 {概要}
 
 Cosmos SDK 使用两种方法来执行升级。
 
-- 使用 `export` CLI 命令将整个应用程序状态导出到 JSON 文件，进行更改，然后使用更改后的 JSON 文件作为创世文件启动一个新的二进制文件。参见【链升级指南 v0.42】(https://docs.cosmos.network/v0.42/migrations/chain-upgrade-guide-040.html)。
+- 使用 `export` CLI 命令将整个应用程序状态导出到 JSON 文件，进行更改，然后使用更改后的 JSON 文件作为创世文件启动一个新的二进制文件。参见[链升级指南 v0.42](https://docs.cosmos.network/v0.42/migrations/chain-upgrade-guide-040.html)。
 
 - v0.44 及更高版本可以执行就地升级，以显着减少具有更大状态的链的升级时间。使用 [模块升级指南](../building-modules/upgrade.md) 设置您的应用程序模块以利用就地升级。
 
@@ -80,7 +80,7 @@ app.UpgradeKeeper.SetUpgradeHandler("my-plan", func(ctx sdk.Context, plan upgrad
 
 ### 为新模块添加 StoreUpgrades
 
-所有准备运行就地商店迁移的连锁店都需要为新模块手动添加商店升级，然后配置商店加载程序以应用这些升级。 这可确保在迁移开始之前将新模块的存储添加到多存储中。 
+所有准备运行就地存储迁移的连锁存储都需要为新模块手动添加存储升级，然后配置存储加载程序以应用这些升级。 这可确保在迁移开始之前将新模块的存储添加到多存储中。 
 
 ```go
 upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()

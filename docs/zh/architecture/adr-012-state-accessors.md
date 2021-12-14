@@ -1,8 +1,8 @@
-# ADR 012：状态访问器
+# ADR 012:状态访问器
 
 ## 变更日志
 
-- 2019 年 9 月 4 日：初稿
+- 2019 年 9 月 4 日:初稿
 
 ## 语境
 
@@ -14,7 +14,7 @@ Cosmos SDK 模块目前使用 `KVStore` 接口和 `Codec` 来访问它们各自�
 值并最终解组。通常这是通过声明 `Keeper.GetXXX` 和 `Keeper.SetXXX` 函数来完成的，
 它们是重复的且难以维护。
 
-其次，这使得更难与对象能力定理保持一致：访问
+其次，这使得更难与对象能力定理保持一致:访问
 状态被定义为一个“StoreKey”，它提供了对整个 Merkle 树的完全访问权限，因此模块不能
 将特定键值对(或一组键值对)的访问权限安全地发送到另一个模块。
 
@@ -24,7 +24,7 @@ Cosmos SDK 模块目前使用 `KVStore` 接口和 `Codec` 来访问它们各自�
 
 ## Decision
 
-我们将定义一个名为“Value”的类型：
+我们将定义一个名为“Value”的类型:
 
 ```go
 type Value struct {
@@ -36,7 +36,7 @@ type Value struct {
 `Value` 用作状态中键值对的引用，其中 `Value.m` 定义键值
 它将访问的空间和 `Value.key` 定义引用的确切键。
 
-我们将定义一个名为 `Mapping` 的类型： 
+我们将定义一个名为 `Mapping` 的类型: 
 
 ```go
 type Mapping struct {
@@ -49,7 +49,7 @@ type Mapping struct {
 `Mapping` 用作状态中键值空间的引用，其中 `Mapping.storeKey` 定义
 IAVL(子)树和`Mapping.prefix` 定义了可选的子空间前缀。
 
-我们将为 `Value` 类型定义以下核心方法： 
+我们将为 `Value` 类型定义以下核心方法: 
 
 ```go
 // Get and unmarshal stored data, noop if not exists, panic if cannot unmarshal
@@ -99,7 +99,7 @@ func (Mapping) Delete(ctx Context, key []byte) {}
 传递参数 `ctx`、`key` 和 `args...` 的 `Mapping` 类型的每个方法都将代理
 对带有参数 ctx 和 args... 的 Mapping.Value(key) 的调用。
 
-此外，我们将定义并提供一组从 `Value` 类型派生的通用类型：
+此外，我们将定义并提供一组从 `Value` 类型派生的通用类型:
 
 ```go
 type Boolean struct { Value }
@@ -112,7 +112,7 @@ type String struct { Value }
 在编码方案可以不同的地方，核心方法中的 `o` 参数是类型化的，而 `ptr` 参数
 在核心方法中被显式返回类型替换。
 
-最后，我们将定义从 Mapping 类型派生的一系列类型：
+最后，我们将定义从 Mapping 类型派生的一系列类型:
 
 ```go
 type Indexer struct {
@@ -123,7 +123,7 @@ type Indexer struct {
 
 键入核心方法中的“key”参数的位置。
 
-访问器类型的一些属性是：
+访问器类型的一些属性是:
 
 - 状态访问仅在调用以 `Context` 作为参数的函数时发生
 - 访问器类型结构仅授予访问该结构所引用的状态的权限，没有其他权限

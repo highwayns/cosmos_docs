@@ -141,6 +141,6 @@ type AppModuleBasic struct{}
 
 +++ https://github.com/cosmos/cosmos-sdk/blob/2323f1ac0e9a69a0da6b43693061036134193464/simapp/app.go#L315-L362
 
-## 下一个{hide}
+## 下一个 {hide}
 
 详细了解 [`message`s 和 `queries`](./messages-and-queries.md) {hide} 

@@ -106,6 +106,6 @@ queryCategory/queryRoute/queryType/arg1/arg2/...
 
 +++ https://github.com/cosmos/cosmos-sdk/blob/080fcf1df25ccdf97f3029b6b6f83caaf5a235e4/baseapp/abci.go#L722-L749
 
-## 下一个{hide}
+## 下一个 {hide}
 
 了解 [`Msg` 服务](./msg-services.md) {hide} 

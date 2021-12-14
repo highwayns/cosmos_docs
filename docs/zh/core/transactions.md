@@ -18,7 +18,7 @@
 
 +++ https://github.com/cosmos/cosmos-sdk/blob/v0.40.0-rc3/types/tx_msg.go#L49-L57
 
-它包含以下方法：
+它包含以下方法:
 
 - **GetMsgs:** 解包交易并返回包含的 `sdk.Msg` 列表 - 一个交易可能有一个或多个消息，由模块开发人员定义。
 - **ValidateBasic:** 包括 ABCI 消息使用的轻量级 [_stateless_](../basics/tx-lifecycle.md#types-of-checks) 检查 [`CheckTx`](./baseapp.md#checktx)和 [`DeliverTx`](./baseapp.md#delivertx) 以确保交易不是无效的。例如，[`auth`](https://github.com/cosmos/cosmos-sdk/tree/master/x/auth) 模块的 `StdTx` `ValidateBasic` 函数检查其交易是否由正确的数字签名签名者的数量，并且费用不超过用户的最高限额。请注意，此函数与用于 sdk.Msg 的 ValidateBasic 函数不同，后者仅对消息执行基本的有效性检查。例如，当 [`runTx`](./baseapp.md#runtx) 正在检查从 [`auth`](https://github.com/cosmos/cosmos-sdk/tree/master/x /auth/spec) 模块，它首先在每条消息上运行 `ValidateBasic`，然后运行 ​​`auth` 模块 AnteHandler，它为交易本身调用 `ValidateBasic`。
@@ -31,23 +31,23 @@
 
 #### `SIGN_MODE_DIRECT`(首选)
 
-`Tx` 接口最常用的实现是 Protobuf `Tx` 消息，它在 `SIGN_MODE_DIRECT` 中使用：
+`Tx` 接口最常用的实现是 Protobuf `Tx` 消息，它在 `SIGN_MODE_DIRECT` 中使用:
 
 +++ https://github.com/cosmos/cosmos-sdk/blob/v0.40.0-rc3/proto/cosmos/tx/v1beta1/tx.proto#L12-L25
 
-由于 Protobuf 序列化不是确定性的，Cosmos SDK 使用额外的“TxRaw”类型来表示交易签名的固定字节。任何用户都可以为交易生成有效的“body”和“auth_info”，并使用 Protobuf 序列化这两条消息。 “TxRaw”然后固定用户的“body”和“auth_info”的精确二进制表示，分别称为“body_bytes”和“auth_info_bytes”。由交易的所有签名者签署的文档是`SignDoc`(使用[ADR-027](../architecture/adr-027-deterministic-protobuf-serialization.md)进行确定性序列化)：
+由于 Protobuf 序列化不是确定性的，Cosmos SDK 使用额外的“TxRaw”类型来表示交易签名的固定字节。任何用户都可以为交易生成有效的“body”和“auth_info”，并使用 Protobuf 序列化这两条消息。 “TxRaw”然后固定用户的“body”和“auth_info”的精确二进制表示，分别称为“body_bytes”和“auth_info_bytes”。由交易的所有签名者签署的文档是`SignDoc`(使用[ADR-027](../architecture/adr-027-deterministic-protobuf-serialization.md)进行确定性序列化):
 
 +++ https://github.com/cosmos/cosmos-sdk/blob/v0.40.0-rc3/proto/cosmos/tx/v1beta1/tx.proto#L47-L64
 
 一旦由所有签名者签名，`body_bytes`、`auth_info_bytes` 和`signatures` 将被收集到`TxRaw` 中，其序列化字节在网络上广播。
 
-####`SIGN_MODE_LEGACY_AMINO_JSON`
+#### `SIGN_MODE_LEGACY_AMINO_JSON`
 
-`Tx` 接口的遗留实现是来自 `x/auth` 的 `StdTx` 结构：
+`Tx` 接口的遗留实现是来自 `x/auth` 的 `StdTx` 结构:
 
 +++ https://github.com/cosmos/cosmos-sdk/blob/v0.40.0-rc3/x/auth/legacy/legacytx/stdtx.go#L120-L130
 
-所有签名者签署的文件是`StdSignDoc`：
+所有签名者签署的文件是`StdSignDoc`:
 
 +++ https://github.com/cosmos/cosmos-sdk/blob/v0.40.0-rc3/x/auth/legacy/legacytx/stdsign.go#L20-L33
 
@@ -59,7 +59,7 @@
 
 ##交易流程
 
-最终用户发送交易的过程是：
+最终用户发送交易的过程是:
 
 - 决定要放入交易的消息，
 - 使用 Cosmos SDK 的 `TxBuilder` 生成交易，
@@ -69,7 +69,7 @@
 
 ### 消息
 
-：：： 小费
+::: 小费
 不要将模块 `sdk.Msg` 与 [ABCI Messages](https://tendermint.com/docs/spec/abci/abci.html#messages) 混淆，后者定义了 Tendermint 和应用程序层之间的交互。
 :::
 
@@ -84,7 +84,7 @@
 
 ### 交易生成
 
-`TxBuilder` 接口包含与交易生成密切相关的数据，最终用户可以自由设置以生成所需的交易：
+`TxBuilder` 接口包含与交易生成密切相关的数据，最终用户可以自由设置以生成所需的交易:
 
 +++ https://github.com/cosmos/cosmos-sdk/blob/v0.40.0-rc3/client/tx_config.go#L32-L45
 
@@ -95,18 +95,18 @@
 - `TimeoutHeight`，直到交易有效的区块高度。
 - `Signatures`，来自交易所有签名者的签名数组。
 
-由于目前有两种签署交易的签名模式，因此也有两种`TxBuilder`的实现：
+由于目前有两种签署交易的签名模式，因此也有两种`TxBuilder`的实现:
 
 - [wrapper](https://github.com/cosmos/cosmos-sdk/blob/v0.40.0-rc3/x/auth/tx/builder.go#L19-L33) 用于为 `SIGN_MODE_DIRECT` 创建交易，
 - [StdTxBuilder](https://github.com/cosmos/cosmos-sdk/blob/v0.40.0-rc3/x/auth/legacy/legacytx/stdtx_builder.go#L14-L20) 用于`SIGN_MODE_LEGACY_AMINO_JSON`。
 
-然而，`TxBuilder` 的两个实现应该远离最终用户，因为他们应该更喜欢使用总体的 `TxConfig` 接口：
+然而，`TxBuilder` 的两个实现应该远离最终用户，因为他们应该更喜欢使用总体的 `TxConfig` 接口:
 
 +++ https://github.com/cosmos/cosmos-sdk/blob/v0.40.0-rc3/client/tx_config.go#L21-L30
 
 `TxConfig` 是用于管理事务的应用程序范围的配置。最重要的是，它保存了有关是否使用“SIGN_MODE_DIRECT”或“SIGN_MODE_LEGACY_AMINO_JSON”签署每个交易的信息。通过调用`txBuilder := txConfig.NewTxBuilder()`，将使用适当的符号模式创建一个新的`TxBuilder`。
 
-一旦 `TxBuilder` 被上面公开的 setter 正确填充，`TxConfig` 也将负责正确编码字节(同样，使用 `SIGN_MODE_DIRECT` 或 `SIGN_MODE_LEGACY_AMINO_JSON`)。这是如何使用 `TxEncoder()` 方法生成和编码交易的伪代码片段：
+一旦 `TxBuilder` 被上面公开的 setter 正确填充，`TxConfig` 也将负责正确编码字节(同样，使用 `SIGN_MODE_DIRECT` 或 `SIGN_MODE_LEGACY_AMINO_JSON`)。这是如何使用 `TxEncoder()` 方法生成和编码交易的伪代码片段:
 
 ```go
 txBuilder := txConfig.NewTxBuilder()
@@ -124,7 +124,7 @@ bz, err := txConfig.TxEncoder()(txBuilder.GetTx())
 
 应用程序开发人员通过创建 [命令行接口](../core/cli.md)、[gRPC 和/或 REST 接口](../core/grpc_rest.md) 来创建应用程序的入口点，通常在 应用程序的`./cmd` 文件夹。 这些接口允许用户通过命令行与应用程序交互。
 
-对于[命令行界面](../building-modules/module-interfaces.md#cli)，模块开发人员创建子命令以作为子命令添加到应用程序顶级事务命令`TxCmd`。 CLI 命令实际上将事务处理的所有步骤捆绑到一个简单的命令中：创建消息、生成事务和广播。 有关具体示例，请参阅 [与节点交互](../run-node/interact-node.md) 部分。 使用 CLI 进行的示例事务如下所示： 
+对于[命令行界面](../building-modules/module-interfaces.md#cli)，模块开发人员创建子命令以作为子命令添加到应用程序顶级事务命令`TxCmd`。 CLI 命令实际上将事务处理的所有步骤捆绑到一个简单的命令中:创建消息、生成事务和广播。 有关具体示例，请参阅 [与节点交互](../run-node/interact-node.md) 部分。 使用 CLI 进行的示例事务如下所示: 
 
 ```bash
 simd tx send $MY_VALIDATOR_ADDRESS $RECIPIENT 1000stake
@@ -132,7 +132,7 @@ simd tx send $MY_VALIDATOR_ADDRESS $RECIPIENT 1000stake
 
 #### gRPC
 
-[gRPC](https://grpc.io) 在 Cosmos SDK 0.40 中引入，作为 Cosmos SDK 的 RPC 层的主要组件。 gRPC 的主要用途是在模块的 [`Query` 服务](../building-modules) 的上下文中。但是，Cosmos SDK 还公开了一些其他与模块无关的 gRPC 服务，其中之一是“Tx”服务：
+[gRPC](https://grpc.io) 在 Cosmos SDK 0.40 中引入，作为 Cosmos SDK 的 RPC 层的主要组件。 gRPC 的主要用途是在模块的 [`Query` 服务](../building-modules) 的上下文中。但是，Cosmos SDK 还公开了一些其他与模块无关的 gRPC 服务，其中之一是“Tx”服务:
 
 +++ https://github.com/cosmos/cosmos-sdk/blob/v0.40.0-rc3/proto/cosmos/tx/v1beta1/service.proto
 

@@ -1,24 +1,24 @@
-# ADR 030：授权模块
+# ADR 030:授权模块
 
 ## 变更日志
 
-- 2019-11-06：初稿
-- 2020-10-12：更新草案
-- 2020-11-13：接受
-- 2020-05-06：proto API 更新，使用 `sdk.Msg` 而不是 `sdk.ServiceMsg`(后一个概念已从 Cosmos SDK 中删除)
+- 2019-11-06:初稿
+- 2020-10-12:更新草案
+- 2020-11-13:接受
+- 2020-05-06:proto API 更新，使用 `sdk.Msg` 而不是 `sdk.ServiceMsg`(后一个概念已从 Cosmos SDK 中删除)
 
 ## 地位
 
 公认
 
-## 抽象的
+## 摘要
 
 此 ADR 定义了 `x/authz` 模块，该模块允许帐户授予执行操作的权限
 代表该帐户到其他帐户。
 
 ## 语境
 
-激发该模块的具体用例包括：
+激发该模块的具体用例包括:
 
 - 希望将提案投票权委托给除自己拥有的账户之外的其他账户
 委托权益
@@ -33,7 +33,7 @@
 键。
 
 目前
-实施基于 [Gaian 团队在 Hackatom Berlin 2019] (https://github.com/cosmos-gaians/cosmos-sdk/tree/hackatom/x/delegation) 所做的工作。
+实施基于 [Gaian 团队在 Hackatom Berlin 2019](https://github.com/cosmos-gaians/cosmos-sdk/tree/hackatom/x/delegation) 所做的工作。
 
 ## 决定
 
@@ -163,7 +163,7 @@ message MsgExec {
 ### Router Middleware
 
 `authz` `Keeper` 将公开一个 `DispatchActions` 方法，该方法允许其他模块发送 `Msg`s
-到基于“授权”授权的路由器： 
+到基于“授权”授权的路由器: 
 
 ```go
 type Keeper interface {
@@ -179,7 +179,7 @@ type Keeper interface {
 
 当 CLI 用户想要使用 `MsgExec` 代表另一个帐户运行事务时，他们
 可以使用`exec`方法。 例如`gaiacli tx gov vote 1 yes --from <grantee> --generate-only | gaiacli tx authz exec --send-as <granter> --from <grantee>`
-会发送这样的交易： 
+会发送这样的交易: 
 
 ```go
 MsgExec {
@@ -244,6 +244,6 @@ SDK用户
 
 ## References
 
-- 初始 Hackatom 实施：https://github.com/cosmos-gaians/cosmos-sdk/tree/hackatom/x/delegation
-- 后 Hackatom 规范：https://gist.github.com/aaronc/b60628017352df5983791cad30babe56#delegation-module
-- B-Harvest 子密钥规范：https://github.com/cosmos/cosmos-sdk/issues/4480 
+- 初始 Hackatom 实施:https://github.com/cosmos-gaians/cosmos-sdk/tree/hackatom/x/delegation
+- 后 Hackatom 规范:https://gist.github.com/aaronc/b60628017352df5983791cad30babe56#delegation-module
+- B-Harvest 子密钥规范:https://github.com/cosmos/cosmos-sdk/issues/4480 

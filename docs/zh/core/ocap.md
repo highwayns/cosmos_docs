@@ -2,7 +2,7 @@
 
 ## Intro
 
-在考虑安全性时，最好从特定的威胁模型开始。我们的威胁模型如下：
+在考虑安全性时，最好从特定的威胁模型开始。我们的威胁模型如下:
 
 > 我们假设一个繁荣的 Cosmos SDK 模块生态系统很容易组合成区块链应用程序，将包含有缺陷或恶意的模块。
 
@@ -25,7 +25,7 @@ Cosmos SDK 旨在通过成为
 > 和可能的恶意代码。
 >
 > 这些结构特性源于两个管理规则
-> 访问现有对象：
+> 访问现有对象:
 >
 > 1. 只有当对象 A 持有一个对象 A 才能向 B 发送消息
 > 参考 B。
@@ -42,13 +42,13 @@ Cosmos SDK 旨在通过成为
 这个想法是只揭示完成工作所必需的东西。
 
 例如，以下代码片段违反了对象功能
-原则：
+原则:
 
 ```去
 输入 AppAccount 结构 {...}
 帐户 := &AppAccount{
-    地址：pub.Address(),
-    硬币：sdk.Coins{sdk.NewInt64Coin("ATM", 100)},
+    地址:pub.Address(),
+    硬币:sdk.Coins{sdk.NewInt64Coin("ATM", 100)},
 }
 sumValue := externalModule.ComputeSumValue(账户)
 ``
@@ -70,6 +70,6 @@ sumValue := externalModule.ComputeSumValue(*account)
 
 ![Keeper 依赖项](../uml/svg/keeper_dependencies.svg)
 
-## 下一个{隐藏}
+## 下一个 {hide}
 
 了解 [`runTx` 中间件](./runtx_middleware.md) {hide} 

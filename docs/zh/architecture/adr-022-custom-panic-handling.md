@@ -1,9 +1,9 @@
-# ADR 022：自定义 BaseApp 恐慌处理
+# ADR 022:自定义 BaseApp 恐慌处理
 
 ## 变更日志
 
-- 2020 年 4 月 24 日：初稿
-- 2021 年 9 月 14 日：被 ADR-045 取代
+- 2020 年 4 月 24 日:初稿
+- 2021 年 9 月 14 日:被 ADR-045 取代
 
 ## 地位
 
@@ -17,7 +17,7 @@ BaseApp 的当前实现不允许开发人员在恐慌恢复期间编写自定义
 需要重写整个 BaseApp。 `sdk.ErrorOutOfGas` 错误处理还有一种特殊情况，就是这种情况
 可能会以“标准”方式(中间件)与其他方式一起处理。
 
-我们提出了中间件解决方案，可以帮助开发者实现以下案例：
+我们提出了中间件解决方案，可以帮助开发者实现以下案例:
 
 * 添加外部日志记录(假设将报告发送到 [Sentry](https://sentry.io) 等外部服务)；
 * 针对特定错误情况调用恐慌；
@@ -55,7 +55,7 @@ type RecoveryHandler func(recoveryObj interface{}) error
 如果输入对象不能被那个 `RecoveryHandler`(不是处理程序的目标类型)处理，则应该返回 `nil`。
 如果处理了输入对象并且应该停止中间件链执行，则不应返回“nil”错误。
 
-一个例子： 
+一个例子: 
 
 ```go
 func exampleErrHandler(recoveryObj interface{}) error {
@@ -116,7 +116,7 @@ func newOutOfGasRecoveryMiddleware(gasWanted uint64, ctx sdk.Context, next recov
 }
 ```
 
-`默认` 中间件示例： 
+`默认` 中间件示例: 
 
 ```go
 func newDefaultRecoveryMiddleware() recoveryMiddleware {
@@ -132,7 +132,7 @@ func newDefaultRecoveryMiddleware() recoveryMiddleware {
 
 ##### 恢复处理
 
-中间件处理的基本链如下所示： 
+中间件处理的基本链如下所示: 
 
 ```go
 func processRecovery(recoveryObj interface{}, middleware recoveryMiddleware) error {
@@ -151,7 +151,7 @@ func processRecovery(recoveryObj interface{}, middleware recoveryMiddleware) err
 
 ##### BaseApp 更改
 
-`default` 中间件链必须存在于 `BaseApp` 对象中。 `Baseapp` 修改： 
+`default` 中间件链必须存在于 `BaseApp` 对象中。 `Baseapp` 修改: 
 
 ```go
 type BaseApp struct {
@@ -178,7 +178,7 @@ func (app *BaseApp) runTx(...) {
 }
 ```
 
-开发人员可以通过将 `AddRunTxRecoveryHandler` 作为 BaseApp 选项参数提供给 `NewBaseapp` 构造函数来添加他们的自定义 `RecoveryHandler`：
+开发人员可以通过将 `AddRunTxRecoveryHandler` 作为 BaseApp 选项参数提供给 `NewBaseapp` 构造函数来添加他们的自定义 `RecoveryHandler`:
 
 ```go
 func (app *BaseApp) AddRunTxRecoveryHandler(handlers ...RecoveryHandler) {
@@ -194,9 +194,9 @@ func (app *BaseApp) AddRunTxRecoveryHandler(handlers ...RecoveryHandler) {
 
 ### Positive
 
-- 基于 Cosmos SDK 的项目的开发人员可以将自定义恐慌处理程序添加到：
+- 基于 Cosmos SDK 的项目的开发人员可以将自定义恐慌处理程序添加到:
      * 为自定义恐慌源添加错误上下文(自定义保持器内部的恐慌)；
-     * 发出`panic()`：将恢复对象传递给Tendermint 核心；
+     * 发出`panic()`:将恢复对象传递给Tendermint 核心；
      * 其他必要的处理；
 - 开发人员可以使用标准的 Cosmos SDK `BaseApp` 实现，而不是在他们的项目中重写它；
 - 提议的解决方案不会破坏当前的“标准”`runTx()` 流程； 

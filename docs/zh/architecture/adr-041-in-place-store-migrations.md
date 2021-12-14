@@ -1,14 +1,14 @@
-# ADR 041：就地存储迁移
+# ADR 041:就地存储迁移
 
 ## 变更日志
 
-- 17.02.2021：初稿
+- 17.02.2021:初稿
 
 ## 地位
 
 公认
 
-## 抽象的
+## 摘要
 
 此 ADR 引入了一种机制，可在链软件升级期间执行就地状态存储迁移。
 
@@ -16,7 +16,7 @@
 
 当链升级在模块内引入状态破坏性更改时，当前过程包括将整个状态导出到 JSON 文件(通过 `simd export` 命令)，在 JSON 文件上运行迁移脚本(`simd migrate` 命令)，清除存储(`simd unsafe-reset-all` 命令)，并使用迁移的 JSON 文件作为新的创世(可以选择使用自定义初始块高度)开始一个新链。 [在 Cosmos Hub 3->4 迁移指南中](https://github.com/cosmos/gaia/blob/v4.0.3/docs/migration/cosmoshub-3.md#升级程序)。
 
-由于多种原因，此过程很麻烦：
+由于多种原因，此过程很麻烦:
 
 - 程序需要时间。运行 `export` 命令可能需要几个小时，使用迁移的 JSON 在新链上运行 `InitChain` 可能需要一些额外的时间。
 - 导出的 JSON 文件可能很重(~100MB-1GB)，难以查看、编辑和传输，这反过来又引入了额外的工作来解决这些问题(例如 [streaming genesis](https://github.com) /cosmos/cosmos-sdk/issues/6936))。
@@ -27,7 +27,7 @@
 
 ### 模块`ConsensusVersion`
 
-我们在`AppModule` 接口上引入了一个新方法： 
+我们在`AppModule` 接口上引入了一个新方法: 
 
 ```go
 type AppModule interface {
@@ -57,7 +57,7 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 
 例如，如果模块的新 ConsensusVersion 是 `N`，则必须在配置器中注册 `N-1` 迁移函数。
 
-在 Cosmos SDK 中，迁移功能由每个模块的 keeper 处理，因为 keeper 持有用于执行就地存储迁移的 `sdk.StoreKey`。 为了不让 keeper 过载，每个模块都使用一个 `Migrator` 包装器来处理迁移功能： 
+在 Cosmos SDK 中，迁移功能由每个模块的 keeper 处理，因为 keeper 持有用于执行就地存储迁移的 `sdk.StoreKey`。 为了不让 keeper 过载，每个模块都使用一个 `Migrator` 包装器来处理迁移功能: 
 
 ```go
 // Migrator is a struct for handling in-place store migrations.
@@ -75,19 +75,19 @@ func (m Migrator) Migrate1to2(ctx sdk.Context) error {
 }
 ```
 
-每个模块的迁移功能都特定于模块的商店演变，在本 ADR 中没有描述。 引入ADR-028长度前缀地址后x/bank store key迁移的例子可以在这个[store.go代码](https://github.com/cosmos/cosmos-sdk/blob/36f68eb9e041e20a5bb47e216ac5eb8b91f95471/ x/bank/legacy/v043/store.go#L41-L62)。
+每个模块的迁移功能都特定于模块的存储演变，在本 ADR 中没有描述。 引入ADR-028长度前缀地址后x/bank store key迁移的例子可以在这个[store.go代码](https://github.com/cosmos/cosmos-sdk/blob/36f68eb9e041e20a5bb47e216ac5eb8b91f95471/ x/bank/legacy/v043/store.go#L41-L62)。
 
 ### 跟踪 `x/upgrade` 中的模块版本
 
-我们在 `x/upgrade` 的商店中引入了一个新的前缀商店。 该存储将跟踪每个模块的当前版本，它可以被建模为模块名称到模块 ConsensusVersion 的 `map[string]uint64`，并将在运行迁移时使用(详情请参阅下一节)。 使用的键前缀为`0x1`，键/值格式为：
+我们在 `x/upgrade` 的存储中引入了一个新的前缀存储。 该存储将跟踪每个模块的当前版本，它可以被建模为模块名称到模块 ConsensusVersion 的 `map[string]uint64`，并将在运行迁移时使用(详情请参阅下一节)。 使用的键前缀为`0x1`，键/值格式为:
 
 ```
 0x2 | {bytes(module_name)} => BigEndian(module_consensus_version)
 ```
 
-商店的初始状态是通过 `app.go` 的 `InitChainer` 方法设置的。
+存储的初始状态是通过 `app.go` 的 `InitChainer` 方法设置的。
 
-UpgradeHandler 签名需要更新以获取 `VersionMap`，并返回升级后的 `VersionMap` 和错误： 
+UpgradeHandler 签名需要更新以获取 `VersionMap`，并返回升级后的 `VersionMap` 和错误: 
 
 ```diff
 - type UpgradeHandler func(ctx sdk.Context, plan Plan)
@@ -114,7 +114,7 @@ func (k UpgradeKeeper) ApplyUpgrade(ctx sdk.Context, plan types.Plan) {
 
 ### Running Migrations
 
-一旦在配置器中注册了所有迁移处理程序(在启动时发生)，就可以通过调用 `module.Manager` 上的 `RunMigrations` 方法来运行迁移。此函数将遍历所有模块，并为每个模块：
+一旦在配置器中注册了所有迁移处理程序(在启动时发生)，就可以通过调用 `module.Manager` 上的 `RunMigrations` 方法来运行迁移。此函数将遍历所有模块，并为每个模块:
 
 - 从它的 `VersionMap` 参数中获取模块的旧 ConsensusVersion(我们称之为 `M`)。
 - 从`AppModule` 上的`ConsensusVersion()` 方法获取模块的新ConsensusVersion(称之为`N`)。
@@ -131,7 +131,7 @@ app.UpgradeKeeper.SetUpgradeHandler("my-plan", func(ctx sdk.Context, plan upgrad
 })
 ```
 
-假设链在块 n 升级，程序应如下运行：
+假设链在块 n 升级，程序应如下运行:
 
 - 当启动块“N”时，旧的二进制文件将在“BeginBlock”中停止。 在它的存储中，存储了旧二进制模块的共识版本。
 - 新的二进制文件将从块“N”开始。 UpgradeHandler 设置在新的二进制文件中，因此将在新二进制文件的“BeginBlock”处运行。 在`x/upgrade` 的`ApplyUpgrade` 中，`VersionMap` 将从(旧二进制的)存储中检索，并传递到`RunMigrations` 函数，在模块自己的`BeginBlock 之前就地迁移所有模块存储 `s. 
@@ -156,11 +156,11 @@ app.UpgradeKeeper.SetUpgradeHandler("my-plan", func(ctx sdk.Context, plan upgrad
 ### Neutral
 
 - Cosmos SDK 将继续通过现有的 `simd export` 和 `simd migrate` 命令支持 JSON 迁移。
-- 当前的 ADR 不允许创建、重命名或删除商店，只能修改现有的商店键和值。 Cosmos SDK 已经为这些操作提供了`StoreLoader`。 
+- 当前的 ADR 不允许创建、重命名或删除存储，只能修改现有的存储键和值。 Cosmos SDK 已经为这些操作提供了`StoreLoader`。 
 ## Further Discussions
 
 ## References
 
-- 初步讨论：https://github.com/cosmos/cosmos-sdk/discussions/8429
-- `ConsensusVersion` 和 `RunMigrations` 的实现：https://github.com/cosmos/cosmos-sdk/pull/8485
-- 讨论 `x/upgrade` 设计的问题：https://github.com/cosmos/cosmos-sdk/issues/8514 
+- 初步讨论:https://github.com/cosmos/cosmos-sdk/discussions/8429
+- `ConsensusVersion` 和 `RunMigrations` 的实现:https://github.com/cosmos/cosmos-sdk/pull/8485
+- 讨论 `x/upgrade` 设计的问题:https://github.com/cosmos/cosmos-sdk/issues/8514 

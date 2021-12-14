@@ -1,20 +1,20 @@
-# ADR 038：KVStore 状态监听
+# ADR 038:KVStore 状态监听
 
 ## 变更日志
 
-- 11/23/2020：初稿
+- 11/23/2020:初稿
 
 ## 地位
 
 建议的
 
-## 抽象的
+## 摘要
 
 此 ADR 定义了一组更改，以启用侦听各个 KVStore 的状态更改并将这些数据公开给消费者。
 
 ## 语境
 
-目前，KVStore数据可以通过【查询】远程访问(https://github.com/cosmos/cosmos-sdk/blob/master/docs/building-modules/messages-and-queries.md#queries)
+目前，KVStore数据可以通过[查询]远程访问(https://github.com/cosmos/cosmos-sdk/blob/master/docs/building-modules/messages-and-queries.md#queries)
 通过 Tendermint 和 ABCI，或通过 gRPC 服务器进行。
 除了这些请求/响应查询之外，有一种方法可以监听实时发生的状态变化。
 
@@ -242,7 +242,7 @@ type StreamingService interface {
 
 #### BaseApp registration
 
-我们将向`BaseApp` 添加一个新方法以启用`StreamingService`s 的注册：
+我们将向`BaseApp` 添加一个新方法以启用`StreamingService`s 的注册:
 
 ```go
 // SetStreamingService is used to set a streaming service into the BaseApp hooks and load the listeners into the multistore
@@ -384,7 +384,7 @@ func (app *BaseApp) Commit() (res abci.ResponseCommit) {
 
 我们提出了一个插件架构来加载和运行 `StreamingService` 实现。 我们将介绍一个插件
 加载/预加载系统，用于加载、初始化、注入、运行和停止 Cosmos-SDK 插件。 每个插件
-必须实现以下接口： 
+必须实现以下接口: 
 
 ```go
 // Plugin is the base interface for all kinds of cosmos-sdk plugins
@@ -489,11 +489,11 @@ func NewSimApp(
     dir = "the directory to load non-preloaded plugins from; defaults to cosmos-sdk/plugin/plugins"
 ```
 
-配置插件系统将有三个参数：`plugins.on`、`plugins.disabled` 和`plugins.dir`。
+配置插件系统将有三个参数:`plugins.on`、`plugins.disabled` 和`plugins.dir`。
 `plugins.on` 是一个布尔值，用于打开或关闭整个插件系统，`plugins.dir` 将系统定向到一个目录
 从中加载插件，`plugins.disabled` 是我们要禁用的插件的名称列表(用于禁用预加载的插件)。
 
-给定插件的配置最终是特定于插件的，但我们将在这里介绍一些标准：
+给定插件的配置最终是特定于插件的，但我们将在这里介绍一些标准:
 
 插件 TOML 配置应为每种插件(例如`plugins.streaming`)拆分为单独的子表。
 在这些子表中，此类特定插件的参数包含在另一个子表中(例如`plugins.streaming.file`)。

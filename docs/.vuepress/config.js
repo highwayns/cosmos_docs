@@ -788,7 +788,7 @@ requestAnimationFrame(function() {
                         "/zh/run-node/rossetta",
                         "/zh/run-node/run-node",
                         "/zh/run-node/run-testnet",
-                        "/run-node/txs",
+                        "/zh/run-node/txs",
                     ],
                     "/zh/": [{
                         title: "Overview",
@@ -1141,7 +1141,7 @@ requestAnimationFrame(function() {
                         "/ja/run-node/rossetta",
                         "/ja/run-node/run-node",
                         "/ja/run-node/run-testnet",
-                        "/run-node/txs",
+                        "/ja/run-node/txs",
                     ],
                     "/ja/": [{
                         title: "Overview",

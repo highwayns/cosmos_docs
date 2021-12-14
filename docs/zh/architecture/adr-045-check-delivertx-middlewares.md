@@ -1,21 +1,21 @@
-# ADR 045：BaseApp `{Check,Deliver}Tx` 作为中间件
+# ADR 045:BaseApp `{Check,Deliver}Tx` 作为中间件
 
 ## 变更日志
 
-- 20.08.2021：初稿。
+- 20.08.2021:初稿。
 - 07.12.2021: 更新 `tx.Handler` 接口 ([\#10693](https://github.com/cosmos/cosmos-sdk/pull/10693))。
 
 ## 地位
 
 公认
 
-## 抽象的
+## 摘要
 
 此 ADR 用基于中间件的设计替换了当前的 BaseApp `runTx` 和 antehandlers 设计。
 
 ## 语境
 
-BaseApp 的 ABCI `{Check,Deliver}Tx()` 的实现和它自己的 `Simulate()` 方法调用了底层的 `runTx` 方法，它首先运行 antehandlers，然后执行 `Msg`s。但是，【交易提示】(https://github.com/cosmos/cosmos-sdk/issues/9406)和【退还未使用的gas】(https://github.com/cosmos/cosmos-sdk/issues/2150 ) 用例要求在执行 `Msg` 后运行自定义逻辑。目前没有办法实现这一点。
+BaseApp 的 ABCI `{Check,Deliver}Tx()` 的实现和它自己的 `Simulate()` 方法调用了底层的 `runTx` 方法，它首先运行 antehandlers，然后执行 `Msg`s。但是，[交易提示](https://github.com/cosmos/cosmos-sdk/issues/9406)和[退还未使用的gas](https://github.com/cosmos/cosmos-sdk/issues/2150 ) 用例要求在执行 `Msg` 后运行自定义逻辑。目前没有办法实现这一点。
 
 一个简单的解决方案是向 BaseApp 添加 post-`Msg` 钩子。然而，Cosmos SDK 团队同时考虑使应用程序布线更简单的大局([#9181](https://github.com/cosmos/cosmos-sdk/discussions/9182))，其中包括使 BaseApp 更轻量级和模块化。
 
@@ -23,7 +23,7 @@ BaseApp 的 ABCI `{Check,Deliver}Tx()` 的实现和它自己的 `Simulate()` 方
 
 我们决定将 Baseapp 的 ABCI `{Check,Deliver}Tx` 实现及其自己的 `Simulate` 方法转换为使用基于中间件的设计。
 
-以下两个接口是中间件设计的基础，并在 `types/tx` 中定义： 
+以下两个接口是中间件设计的基础，并在 `types/tx` 中定义: 
 
 ```go
 type Handler interface {
@@ -35,7 +35,7 @@ type Handler interface {
 type Middleware func(Handler) Handler
 ```
 
-我们在这里定义了以下参数和返回类型： 
+我们在这里定义了以下参数和返回类型: 
 
 ```go
 type Request struct {
@@ -65,7 +65,7 @@ type ResponseCheckTx struct {
 
 请注意，由于 CheckTx 处理与内存池优先化相关的单独逻辑，因此其签名与 DeliverTx 和 SimulateTx 不同。 
 
-BaseApp 持有对 `tx.Handler` 的引用： 
+BaseApp 持有对 `tx.Handler` 的引用: 
 
 ```go
 type BaseApp  struct {
@@ -74,7 +74,7 @@ type BaseApp  struct {
 }
 ```
 
-Baseapp 的 ABCI `{Check,Deliver}Tx()` 和 `Simulate()` 方法简单地调用带有相关参数的 `app.txHandler.{Check,Deliver,Simulate}Tx()`。 例如，对于`DeliverTx`： 
+Baseapp 的 ABCI `{Check,Deliver}Tx()` 和 `Simulate()` 方法简单地调用带有相关参数的 `app.txHandler.{Check,Deliver,Simulate}Tx()`。 例如，对于`DeliverTx`: 
 
 ```go
 func (app *BaseApp) DeliverTx(req abci.RequestDeliverTx) abci.ResponseDeliverTx {
@@ -122,7 +122,7 @@ func makeABCIData(txRes tx.Response) ([]byte, error) {
 
 实际上，中间件是由 Go 函数创建的，该函数将中间件所需的一些参数作为参数，并返回一个 `tx.Middleware`。
 
-例如，为了创建一个任意的`MyMiddleware`，我们可以实现： 
+例如，为了创建一个任意的`MyMiddleware`，我们可以实现: 
 
 ```go
 // myTxHandler is the tx.Handler of this middleware. Note that it holds a
@@ -184,7 +184,7 @@ func (h myTxHandler) SimulateTx(ctx context.Context, req Request) (Response, err
 
 虽然 BaseApp 只是持有对 `tx.Handler` 的引用，但这个 `tx.Handler` 本身是使用中间件堆栈定义的。 Cosmos SDK 公开了一个基础的(即最里面的)`tx.Handler`，称为 `RunMsgsTxHandler`，它执行消息。
 
-然后，应用程序开发人员可以在基础 `tx.Handler` 之上组合多个中间件。 每个中间件都可以围绕其下一个中间件运行预处理和后处理逻辑，如上一节所述。 从概念上讲，作为一个例子，给定中间件 `A`、`B` 和 `C` 以及基础 `tx.Handler` `H`，堆栈看起来像： 
+然后，应用程序开发人员可以在基础 `tx.Handler` 之上组合多个中间件。 每个中间件都可以围绕其下一个中间件运行预处理和后处理逻辑，如上一节所述。 从概念上讲，作为一个例子，给定中间件 `A`、`B` 和 `C` 以及基础 `tx.Handler` `H`，堆栈看起来像: 
 
 ```
 A.pre
@@ -196,13 +196,13 @@ A.pre
 A.post
 ```
 
-我们定义了一个 `ComposeMiddlewares` 函数来组合中间件。 它将基本处理程序作为第一个参数，并按照“从外到内”的顺序使用中间件。 对于上面的堆栈，最终的 `tx.Handler` 是： 
+我们定义了一个 `ComposeMiddlewares` 函数来组合中间件。 它将基本处理程序作为第一个参数，并按照“从外到内”的顺序使用中间件。 对于上面的堆栈，最终的 `tx.Handler` 是: 
 
 ```go
 txHandler := middleware.ComposeMiddlewares(H, A, B, C)
 ```
 
-中间件通过其“SetTxHandler”设置器在 BaseApp 中设置： 
+中间件通过其“SetTxHandler”设置器在 BaseApp 中设置: 
 
 ```go
 // simapp/app.go
@@ -215,7 +215,7 @@ app.SetTxHandler(txHandler)
 
 ### 中间件由 Cosmos SDK 维护
 
-虽然应用程序开发人员可以定义和组合他们选择的中间件，但 Cosmos SDK 提供了一组满足生态系统最常见用例的中间件。 这些中间件是：
+虽然应用程序开发人员可以定义和组合他们选择的中间件，但 Cosmos SDK 提供了一组满足生态系统最常见用例的中间件。 这些中间件是:
 
 | Middleware              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -248,7 +248,7 @@ app.SetTxHandler(txHandler)
 
 ### Backwards Compatibility
 
-由于此重构将一些逻辑从 BaseApp 移到中间件中，因此它为应用程序开发人员引入了 API 破坏性更改。 最值得注意的是，应用程序开发人员不需要在 `app.go` 中创建一个 antehandler 链，而是需要创建一个中间件堆栈： 
+由于此重构将一些逻辑从 BaseApp 移到中间件中，因此它为应用程序开发人员引入了 API 破坏性更改。 最值得注意的是，应用程序开发人员不需要在 `app.go` 中创建一个 antehandler 链，而是需要创建一个中间件堆栈: 
 
 ```diff
 - anteHandler, err := ante.NewAnteHandler(
@@ -306,5 +306,5 @@ No neutral consequences.
 
 ## 参考
 
-- 初步讨论：https://github.com/cosmos/cosmos-sdk/issues/9585
-- 实现：[#9920 BaseApp 重构](https://github.com/cosmos/cosmos-sdk/pull/9920) 和 [#10028 Antehandlers 迁移](https://github.com/cosmos/cosmos-sdk/ 拉/10028) 
+- 初步讨论:https://github.com/cosmos/cosmos-sdk/issues/9585
+- 实现:[#9920 BaseApp 重构](https://github.com/cosmos/cosmos-sdk/pull/9920) 和 [#10028 Antehandlers 迁移](https://github.com/cosmos/cosmos-sdk/ 拉/10028) 

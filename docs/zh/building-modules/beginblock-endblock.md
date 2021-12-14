@@ -30,6 +30,6 @@
 
 +++ https://github.com/cosmos/cosmos-sdk/blob/f33749263f4ecc796115ad6e789cb0f7cddf9148/x/staking/abci.go#L22-L27
 
-## 下一个{hide}
+## 下一个 {hide}
 
 了解 [`keeper`s](./keeper.md) {hide} 

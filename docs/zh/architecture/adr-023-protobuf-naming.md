@@ -1,9 +1,9 @@
-# ADR 023：协议缓冲区命名和版本约定
+# ADR 023:协议缓冲区命名和版本约定
 
 ## 变更日志
 
-- 2020 年 4 月 27 日：初稿
-- 2020 年 8 月 5 日：更新指南
+- 2020 年 4 月 27 日:初稿
+- 2020 年 8 月 5 日:更新指南
 
 ## 地位
 
@@ -29,7 +29,7 @@ protobuf 的有效使用，偏离那些只有在有明确
 到目前为止，我们主要遵循 [Buf's](https://buf.build) [DEFAULT](https://buf.build/docs/lint-checkers#default)
 建议，禁用 [`PACKAGE_DIRECTORY_MATCH`](https://buf.build/docs/lint-checkers#file_layout) 的小偏差
 虽然方便开发代码，但带有警告
-从 Buf 说：
+从 Buf 说:
 
 > 如果您不这样做，您将在各种语言的许多 Protobuf 插件中度过一段非常糟糕的时光
 
@@ -43,7 +43,7 @@ protobuf 的有效使用，偏离那些只有在有明确
 
 ## 决定
 
-此 ADR 的目标是提供周到的命名约定：
+此 ADR 的目标是提供周到的命名约定:
 
 * 鼓励用户直接与之交互时的良好用户体验
 .proto 文件和完全限定的 protobuf 名称
@@ -56,7 +56,7 @@ protobuf 的有效使用，偏离那些只有在有明确
 
 作为起点，我们应该采用所有 [DEFAULT](https://buf.build/docs/lint-checkers#default)
 [Buf's](https://buf.build) 中的跳棋，包括 [`PACKAGE_DIRECTORY_MATCH`](https://buf.build/docs/lint-checkers#file_layout)，
-除了： 
+除了: 
 
 * [PACKAGE_VERSION_SUFFIX](https://buf.build/docs/lint-checkers#package_version_suffix)
 * [SERVICE_SUFFIX](https://buf.build/docs/lint-checkers#service_suffix)
@@ -118,7 +118,7 @@ protobuf 的有效使用，偏离那些只有在有明确
 
 考虑到这一点，应该或多或少地考虑包的不同稳定版本(即`v1` 或`v2`)
 不同的包，这应该是升级 protobuf 模式的最后手段。创造的场景
-`v2` 可能有意义的是：
+`v2` 可能有意义的是:
 
 * 我们想创建一个与现有模块功能相似的新模块，添加 `v2` 是最自然的
 方法来做到这一点。在这种情况下，实际上只有两个具有不同 API 的不同但相似的模块。
@@ -128,7 +128,7 @@ protobuf 的有效使用，偏离那些只有在有明确
 
 #### 不稳定(alpha 和 beta)包版本指南
 
-建议遵循以下准则将包标记为 alpha 或 beta：
+建议遵循以下准则将包标记为 alpha 或 beta:
 
 * 将某些内容标记为 `alpha` 或 `beta` 应该是最后的手段，只需将某些内容放入
 稳定包(即`v1`或`v2`)应该是首选
@@ -142,7 +142,7 @@ protobuf 的有效使用，偏离那些只有在有明确
 每当代码被发布到野外时，尤其是在区块链上，更改事物的成本很高。在一些
 例如，对于不可变的智能合约，重大更改可能无法修复。
 
-将某些内容标记为“alpha”或“beta”时，维护人员应该提出以下问题： 
+将某些内容标记为“alpha”或“beta”时，维护人员应该提出以下问题: 
 
 * 要求其他人更改他们的代码的成本与我们保持更改它的可选性的好处是什么？
 * 将其移至 `v1` 的计划是什么，这将如何影响用户？
@@ -154,7 +154,7 @@ protobuf 的有效使用，偏离那些只有在有明确
 所以如果他们真的去把包改成`grpc.reflection.v1`，一些软件就会崩溃并且
 他们可能不想那样做……所以现在`v1alpha` 包或多或少是事实上的`v1`。我们不要那样做。
 
-以下是使用非稳定包的指南：
+以下是使用非稳定包的指南:
 
 * [Buf推荐的版本后缀](https://buf.build/docs/lint-checkers#package_version_suffix)
 (例如`v1alpha1`)_应该_用于非稳定包
@@ -222,7 +222,7 @@ RPC 请求和响应类型_应该_遵循`ServiceNameMethodNameRequest`/
 
 #### 只使用`Query` 作为查询服务
 
-而不是【Buf的默认服务后缀推荐】(https://github.com/cosmos/cosmos-sdk/pull/6033)，
+而不是[Buf的默认服务后缀推荐](https://github.com/cosmos/cosmos-sdk/pull/6033)，
 我们应该简单地使用较短的 `Query` 来提供查询服务。
 
 对于其他类型的 gRPC 服务，我们应该考虑坚持使用 Buf 的

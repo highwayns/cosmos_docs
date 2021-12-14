@@ -79,6 +79,6 @@ func RegisterInvariants(ir sdk.InvariantRegistry, k Keeper) {
 
 在这两种情况下，如果 `Invariant` 之一返回 false，`InvariantRegistry` 可以触发特殊逻辑(例如，让应用程序恐慌并在日志中打印 `Invariant`s 消息)。
 
-## 下一个{hide}
+## 下一个 {hide}
 
 了解 [创世功能](./genesis.md) {hide} 

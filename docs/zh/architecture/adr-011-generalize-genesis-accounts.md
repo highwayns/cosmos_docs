@@ -1,8 +1,8 @@
-# ADR 011：推广创世纪账户
+# ADR 011:推广创世纪账户
 
 ## 变更日志
 
-- 2019-08-30：初稿
+- 2019-08-30:初稿
 
 ## 语境
 
@@ -14,7 +14,7 @@
 
 总而言之，我们将(取消)使用amino 直接编组所有帐户(接口类型)，而不是转换为`genaccounts` 的`GenesisAccount` 类型。由于这样做会删除大部分 `genaccounts` 的代码，我们将把 `genaccounts` 合并到 `auth` 中。编组的帐户将存储在“auth”的创世状态中。
 
-详细变化：
+详细变化:
 
 ### 1) (Un)Marshal 帐户直接使用氨基
 
@@ -60,7 +60,7 @@ func ExportGenesis(ctx sdk.Context, ak AccountKeeper) GenesisState {
 
 `auth` 编解码器必须注册所有自定义帐户类型以对其进行编组。 我们将遵循“gov”中建立的提案模式。
 
-自定义帐户定义示例：
+自定义帐户定义示例:
 
 ```go
 import authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -74,7 +74,7 @@ type ModuleAccount struct {
     ...
 ```
 
-`auth` 编解码器定义： 
+`auth` 编解码器定义: 
 
 ```go
 var ModuleCdc *codec.LegacyAmino
@@ -105,7 +105,7 @@ type GenesisAccount interface {
 }
 ```
 
-然后`auth``ValidateGenesis`函数变成：
+然后`auth``ValidateGenesis`函数变成:
 
 ```go
 // ValidateGenesis performs basic validation of auth genesis data returning an
@@ -143,7 +143,7 @@ func ValidateGenesis(data GenesisState) error {
 
 ### 5) 更新模块和归属账户
 
-在新方案下，模块和归属账户类型需要一些小的更新：
+在新方案下，模块和归属账户类型需要一些小的更新:
 
 - 在 `auth` 的编解码器上键入注册(如上所示)
 - 每个“Account”具体类型的“Validate”方法 

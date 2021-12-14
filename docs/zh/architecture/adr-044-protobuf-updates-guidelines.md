@@ -1,23 +1,23 @@
-# ADR 044：Protobuf 定义更新指南
+# ADR 044:Protobuf 定义更新指南
 
 ## 变更日志
 
-- 28.06.2021：初稿
-- 02.12.2021：为新字段添加`Since:` 注释
+- 28.06.2021:初稿
+- 02.12.2021:为新字段添加`Since:` 注释
 
 ## 地位
 
 草稿
 
-## 抽象的
+## 摘要
 
 此 ADR 提供更新 Protobuf 定义时的指南和推荐做法。这些指南针对模块开发人员。
 
 ## 语境
 
-Cosmos SDK 维护了一套【Protobuf 定义】(https://github.com/cosmos/cosmos-sdk/tree/master/proto/cosmos)。正确设计 Protobuf 定义以避免在同一版本中发生任何破坏性更改非常重要。原因是不要破坏工具(包括索引器和资源管理器)、钱包和其他第三方集成。
+Cosmos SDK 维护了一套[Protobuf 定义](https://github.com/cosmos/cosmos-sdk/tree/master/proto/cosmos)。正确设计 Protobuf 定义以避免在同一版本中发生任何破坏性更改非常重要。原因是不要破坏工具(包括索引器和资源管理器)、钱包和其他第三方集成。
 
-在更改这些 Protobuf 定义时，Cosmos SDK 当前仅遵循 [Buf's](https://docs.buf.build/) 建议。但是我们注意到，在某些情况下，Buf 的建议可能仍会导致 SDK 发生重大变化。例如：
+在更改这些 Protobuf 定义时，Cosmos SDK 当前仅遵循 [Buf's](https://docs.buf.build/) 建议。但是我们注意到，在某些情况下，Buf 的建议可能仍会导致 SDK 发生重大变化。例如:
 
 - 向`Msg`s 添加字段。添加字段不是 Protobuf 规范破坏的操作。但是，当向`Msg`s 添加新字段时，未知字段拒绝将在将新`Msg` 发送到旧节点时抛出错误。
 - 将字段标记为“保留”。 Protobuf 建议使用 `reserved` 关键字来删除字段，而无需修改包版本。但是，这样做会破坏客户端的向后兼容性，因为 Protobuf 不会为“保留”字段生成任何内容。有关此问题的更多详细信息，请参阅 [#9446](https://github.com/cosmos/cosmos-sdk/issues/9446)。
@@ -26,13 +26,13 @@ Cosmos SDK 维护了一套【Protobuf 定义】(https://github.com/cosmos/cosmos
 
 ## 决定
 
-我们决定保留 [Buf's](https://docs.buf.build/) 的建议，但以下情况除外：
+我们决定保留 [Buf's](https://docs.buf.build/) 的建议，但以下情况除外:
 
-- `UNARY_RPC`：Cosmos SDK 目前不支持流式 RPC。
-- `COMMENT_FIELD`：Cosmos SDK 允许没有注释的字段。
-- `SERVICE_SUFFIX`：我们使用`Query` 和`Msg` 服务命名约定，不使用`-Service` 后缀。
-- `PACKAGE_VERSION_SUFFIX`：一些包，例如`cosmos.crypto.ed25519`，不使用版本后缀。
-- `RPC_REQUEST_STANDARD_NAME`：对`Msg` 服务的请求没有`-Request` 后缀以保持向后兼容性。
+- `UNARY_RPC`:Cosmos SDK 目前不支持流式 RPC。
+- `COMMENT_FIELD`:Cosmos SDK 允许没有注释的字段。
+- `SERVICE_SUFFIX`:我们使用`Query` 和`Msg` 服务命名约定，不使用`-Service` 后缀。
+- `PACKAGE_VERSION_SUFFIX`:一些包，例如`cosmos.crypto.ed25519`，不使用版本后缀。
+- `RPC_REQUEST_STANDARD_NAME`:对`Msg` 服务的请求没有`-Request` 后缀以保持向后兼容性。
 
 在 Buf 的建议之上，我们添加了以下特定于 Cosmos SDK 的指南。
 
@@ -52,7 +52,7 @@ Cosmos SDK 维护了一套【Protobuf 定义】(https://github.com/cosmos/cosmos
 
 另一方面，模块开发人员可以向与“查询”服务或存储在存储中的对象相关的 Protobuf 定义中添加新字段。 此建议遵循 Protobuf 规范，但为了清楚起见添加到本文档中。
 
-SDK 要求新字段的 Protobuf 注释包含一行，格式如下： 
+SDK 要求新字段的 Protobuf 注释包含一行，格式如下: 
 
 ```protobuf
 // Since: cosmos-sdk <version>{, <version>...}
@@ -60,7 +60,7 @@ SDK 要求新字段的 Protobuf 注释包含一行，格式如下：
 
 其中每个`version`表示该字段可用的次要(“0.45”)或补丁(“0.44.5”)版本。 这将极大地帮助客户端库，他们可以选择使用反射或自定义代码生成来根据目标节点版本显示/隐藏这些字段。
 
-例如，以下评论是有效的： 
+例如，以下评论是有效的: 
 
 ```protobuf
 // Since: cosmos-sdk 0.44
@@ -84,7 +84,7 @@ and the following ones are NOT valid:
 
 Protobuf 支持 [`deprecated` 字段选项](https://developers.google.com/protocol-buffers/docs/proto#options)，并且该选项可以用于任何字段，包括 `Msg` 字段。如果节点处理带有非空弃用字段的 Protobuf 消息，则节点可能会在处理它时改变其行为，即使以破坏协议的方式。如果可能，节点必须在不破坏共识的情况下处理向后兼容性(除非我们增加原型版本)。
 
-例如，Cosmos SDK v0.42 到 v0.43 更新包含两个 Protobuf 破坏性更改，如下所列。 SDK 团队并没有将软件包版本从 `v1beta1` 提升到 `v1`，而是决定遵循这一准则，通过还原破坏性更改、将这些更改标记为已弃用，并在处理带有弃用字段的消息时修改节点实现。进一步来说：
+例如，Cosmos SDK v0.42 到 v0.43 更新包含两个 Protobuf 破坏性更改，如下所列。 SDK 团队并没有将软件包版本从 `v1beta1` 提升到 `v1`，而是决定遵循这一准则，通过还原破坏性更改、将这些更改标记为已弃用，并在处理带有弃用字段的消息时修改节点实现。进一步来说:
 
 - Cosmos SDK 最近取消了对[基于时间的软件升级](https://github.com/cosmos/cosmos-sdk/pull/8849) 的支持。因此，“时间”字段已在“cosmos.upgrade.v1beta1.Plan”中标记为已弃用。此外，节点将拒绝任何包含“时间”字段非空的升级计划的提议。
 - Cosmos SDK 现在支持 [治理分裂投票](./adr-037-gov-split-vote.md)。在查询投票时，返回的 `cosmos.gov.v1beta1.Vote` 消息的 `option` 字段(用于 1 票选项)被弃用，取而代之的是它的 `options` 字段(允许多个投票选项)。只要有可能，SDK 仍会填充已弃用的 `option` 字段，即当且仅当 `len(options) == 1` 和 `options[0].Weight == 1.0`。
@@ -95,7 +95,7 @@ Protobuf 支持 [`deprecated` 字段选项](https://developers.google.com/protoc
 
 ### 递增 Protobuf 包版本
 
-TODO，需要架构审查。一些主题：
+TODO，需要架构审查。一些主题:
 
 - 碰撞版本频率
 - 碰撞版本时，Cosmos SDK 是否应该支持两个版本？

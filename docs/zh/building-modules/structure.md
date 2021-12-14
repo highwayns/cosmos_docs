@@ -90,6 +90,6 @@ x/{module_name}
     - `params.go`:模块的参数类型定义和相关方法。
     - `*.pb.go`:由 Protocol Buffers 生成的模块类型定义(在上面相应的 `*.proto` 文件中定义)。
 
-## 下一个{hide}
+## 下一个 {hide}
 
 了解 [错误](./errors.md) {hide} 
